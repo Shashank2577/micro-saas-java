@@ -1,0 +1,13 @@
+{
+  "active": false,
+  "current_phase": "completed",
+  "original_prompt": "continue build via jules give complex task to jules /jules to start working make sure it has proper context of what needs to be done end to end,",
+  "completed_at": "2026-04-16T12:24:00.000Z",
+  "phases_completed": "0,1,2,3,4,5",
+  "_meta": {
+    "mode": "autopilot",
+    "sessionId": "60a36dd5-2c66-40a1-8838-1f3102e350d1",
+    "updatedAt": "2026-04-16T12:24:09.592Z",
+    "updatedBy": "state_write_tool"
+  }
+}

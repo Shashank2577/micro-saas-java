@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog Widget — Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      min-height: 100vh;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 40px;
+    }
+    header h1 { font-size: 20px; font-weight: 700; }
+    header p { color: #6b7280; font-size: 14px; margin-top: 4px; }
+    main { max-width: 720px; margin: 48px auto; padding: 0 24px; }
+    h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .card p { color: #6b7280; font-size: 14px; line-height: 1.6; }
+    pre {
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+    code { font-family: "Fira Code", "Cascadia Code", monospace; }
+    .position-btns { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .position-btns button {
+      padding: 8px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s;
+    }
+    .position-btns button:hover { background: #f3f4f6; }
+    .note { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; padding: 12px 16px; font-size: 13px; color: #92400e; margin-top: 16px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Changelog Widget Demo</h1>
+  <p>Self-contained JavaScript embed widget for changelog platforms</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <h3>About the Widget</h3>
+    <p>
+      The widget renders a floating bell icon with an unread badge. Clicking it slides in a panel
+      showing the 10 most recent published changelog entries. Entries track read/unread state via
+      localStorage and auto-refresh every 60 seconds.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Quick Start — Local Development</h3>
+    <p>With the changelog platform running on <code>http://localhost:8080</code>, add this script tag to any page:</p>
+    <pre><code>&lt;script src="http://localhost:8080/widget/widget.js"
+        data-slug="my-changelog"
+        data-position="bottom-right"&gt;&lt;/script&gt;</code></pre>
+    <div class="position-btns">
+      <button onclick="document.getElementById('demo-scripts').innerHTML=document.getElementById('demo-br').innerHTML">Show bottom-right</button>
+      <button onclick="document.getElementById('demo-scripts').innerHTML=document.getElementById('demo-bl').innerHTML">Show bottom-left</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Full Embed Snippet</h3>
+    <pre><code>&lt;script
+  src="https://your-cdn.com/widget/widget.js"
+  data-slug="your-changelog-slug"
+  data-position="bottom-right"
+  data-api="https://your-api-host.com"&gt;
+&lt;/script&gt;</code></pre>
+    <p style="margin-top:12px; font-size:13px; color:#6b7280;">
+      Attributes:
+      <code>data-slug</code> (required) — your changelog project slug &nbsp;|&nbsp;
+      <code>data-position</code> — <code>bottom-right</code> or <code>bottom-left</code> &nbsp;|&nbsp;
+      <code>data-api</code> — override API origin (defaults to widget script origin)
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>How It Works</h3>
+    <ul style="font-size:14px; color:#6b7280; line-height:2; padding-left:20px;">
+      <li>Bell icon floats at the bottom corner with a red unread badge</li>
+      <li>Clicking opens a 380px slide-over panel from the right (or left)</li>
+      <li>Entries show title, description, type badge, and publish date</li>
+      <li>Unread entries display a blue dot; clicking marks them read (localStorage)</li>
+      <li>Panel polls the API every 60 seconds for new entries</li>
+      <li>All styles are scoped under <code>.changelog-widget-*</code> to avoid conflicts</li>
+      <li>Zero external dependencies — vanilla JS only</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <strong>Note:</strong> The widget below is loaded from the local server.
+    If the server isn't running at <code>http://localhost:8080</code>, the widget will not fetch any entries.
+  </div>
+
+  <!-- Hidden snippets for position toggle -->
+  <div id="demo-br" style="display:none">
+&lt;script src="http://localhost:8080/widget/widget.js"
+        data-slug="my-changelog"
+        data-position="bottom-right"&gt;&lt;/script&gt;
+  </div>
+  <div id="demo-bl" style="display:none">
+&lt;script src="http://localhost:8080/widget/widget.js"
+        data-slug="my-changelog"
+        data-position="bottom-left"&gt;&lt;/script&gt;
+  </div>
+
+  <!-- Container to inject live snippets -->
+  <div id="demo-scripts" style="display:none"></div>
+
+</main>
+
+<!-- LIVE WIDGET: change data-slug to match your project slug -->
+<script src="http://localhost:8080/widget/widget.js"
+        data-slug="my-changelog"
+        data-position="bottom-right"
+        data-api="http://localhost:8080"></script>
+
+</body>
+</html>
