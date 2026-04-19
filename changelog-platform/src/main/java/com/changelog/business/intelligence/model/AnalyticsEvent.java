@@ -46,6 +46,7 @@ public class AnalyticsEvent {
     @Column(name = "session_id")
     private String sessionId;
 
+    @JdbcTypeCode(SqlTypes.INET)
     @Column(name = "ip_address", columnDefinition = "inet")
     private String ipAddress;
 
