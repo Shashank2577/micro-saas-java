@@ -22,7 +22,7 @@ public class AnalyticsController {
     private final PostRepository postRepository;
 
     @GetMapping("/stats/{tenantId}")
-    @PreAuthorize("isTenantOwner(#tenantId)")
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
     public DashboardStatsResponse getStats(@PathVariable UUID tenantId) {
         return DashboardStatsResponse.builder()
                 .totalProjects(projectRepository.findByTenantId(tenantId).size())

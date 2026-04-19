@@ -1,16 +1,17 @@
 package com.changelog.service;
 
 import com.changelog.dto.CreateProjectRequest;
+import com.changelog.dto.ProjectMapper;
 import com.changelog.dto.ProjectResponse;
 import com.changelog.model.Project;
 import com.changelog.repository.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -19,87 +20,82 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ProjectMapper projectMapper;
+    private final SlugService slugService;
 
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
     public List<ProjectResponse> getAllProjects(UUID tenantId) {
         return projectRepository.findByTenantId(tenantId).stream()
-                .map(ProjectResponse::fromEntity)
+                .map(projectMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
     public ProjectResponse getProject(UUID tenantId, UUID projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
-        if (!project.getTenantId().equals(tenantId)) {
-            throw new IllegalArgumentException("Access denied");
-        }
-
-        return ProjectResponse.fromEntity(project);
+        return projectMapper.toResponse(project);
     }
 
     public ProjectResponse getProjectBySlug(String tenantSlug, String projectSlug) {
         return projectRepository.findBySlugAndTenantSlug(projectSlug, tenantSlug)
-                .map(ProjectResponse::fromEntity)
+                .map(projectMapper::toResponse)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
     }
 
     public ProjectResponse getProjectBySlug(String slug) {
         return projectRepository.findBySlug(slug)
-                .map(ProjectResponse::fromEntity)
+                .map(projectMapper::toResponse)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
     }
 
     @Transactional
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
     public ProjectResponse createProject(UUID tenantId, CreateProjectRequest request) {
-        if (projectRepository.existsByTenantIdAndSlug(tenantId, request.getSlug())) {
-            throw new IllegalArgumentException("Project slug already exists");
+        String slug = (request.getSlug() == null || request.getSlug().isBlank()) 
+                ? slugService.slugify(request.getName()) 
+                : slugService.slugify(request.getSlug());
+
+        if (projectRepository.existsByTenantIdAndSlug(tenantId, slug)) {
+            throw new IllegalArgumentException("Project slug already exists: " + slug);
         }
 
-        Project project = Project.builder()
-                .tenantId(tenantId)
-                .name(request.getName())
-                .slug(request.getSlug())
-                .description(request.getDescription())
-                .branding(request.getBranding() != null ? request.getBranding() : Map.of())
-                .build();
+        Project project = projectMapper.toEntity(request);
+        project.setTenantId(tenantId);
+        project.setSlug(slug);
 
         Project saved = projectRepository.save(project);
-        return ProjectResponse.fromEntity(saved);
+        return projectMapper.toResponse(saved);
     }
 
     @Transactional
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
     public ProjectResponse updateProject(UUID tenantId, UUID projectId, CreateProjectRequest request) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
-        if (!project.getTenantId().equals(tenantId)) {
-            throw new IllegalArgumentException("Access denied");
+        String newSlug = (request.getSlug() == null || request.getSlug().isBlank())
+                ? slugService.slugify(request.getName())
+                : slugService.slugify(request.getSlug());
+
+        if (!project.getSlug().equals(newSlug) &&
+                projectRepository.existsByTenantIdAndSlug(tenantId, newSlug)) {
+            throw new IllegalArgumentException("Project slug already exists: " + newSlug);
         }
 
-        if (!project.getSlug().equals(request.getSlug()) &&
-                projectRepository.existsByTenantIdAndSlug(tenantId, request.getSlug())) {
-            throw new IllegalArgumentException("Project slug already exists");
-        }
-
-        project.setName(request.getName());
-        project.setSlug(request.getSlug());
-        project.setDescription(request.getDescription());
-        if (request.getBranding() != null) {
-            project.setBranding(request.getBranding());
-        }
+        projectMapper.updateEntity(request, project);
+        project.setSlug(newSlug);
 
         Project updated = projectRepository.save(project);
-        return ProjectResponse.fromEntity(updated);
+        return projectMapper.toResponse(updated);
     }
 
     @Transactional
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
     public void deleteProject(UUID tenantId, UUID projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
-
-        if (!project.getTenantId().equals(tenantId)) {
-            throw new IllegalArgumentException("Access denied");
-        }
 
         projectRepository.delete(project);
     }

@@ -1,6 +1,7 @@
 package com.changelog.service;
 
 import com.changelog.dto.CreatePostRequest;
+import com.changelog.dto.PostMapper;
 import com.changelog.dto.PostResponse;
 import com.changelog.model.Post;
 import com.changelog.model.Tag;
@@ -11,7 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final ProjectRepository projectRepository;
     private final TagRepository tagRepository;
+    private final PostMapper postMapper;
 
     private SubscriberNotificationService subscriberNotificationService;
 
@@ -38,34 +42,34 @@ public class PostService {
         this.subscriberNotificationService = subscriberNotificationService;
     }
 
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
     public List<PostResponse> getPosts(UUID tenantId, UUID projectId) {
         if (!projectRepository.existsById(projectId)) {
             throw new EntityNotFoundException("Project not found");
         }
 
         return postRepository.findByProjectIdOrderByPublishedAtDesc(projectId).stream()
-                .map(PostResponse::fromEntity)
+                .map(postMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     public List<PostResponse> getPublishedPosts(UUID projectId) {
         return postRepository.findPublishedPosts(projectId).stream()
-                .map(PostResponse::fromEntity)
+                .map(postMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
     public PostResponse getPost(UUID tenantId, UUID postId) {
         Post post = postRepository.findByIdWithTags(tenantId, postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
 
-        if (!post.getTenantId().equals(tenantId)) {
-            throw new IllegalArgumentException("Access denied");
-        }
-
-        return PostResponse.fromEntity(post);
+        return postMapper.toResponse(post);
     }
 
     @Transactional
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
+    @CacheEvict(value = {"changelogs", "changelog_posts"}, allEntries = true)
     public PostResponse createPost(UUID tenantId, UUID projectId, UUID authorId, CreatePostRequest request) {
         var project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
@@ -74,17 +78,12 @@ public class PostService {
             throw new IllegalArgumentException("Access denied");
         }
 
-        Post post = Post.builder()
-                .projectId(projectId)
-                .tenantId(tenantId)
-                .title(request.getTitle())
-                .summary(request.getSummary())
-                .content(request.getContent())
-                .status(request.getStatus() != null ? request.getStatus() : Post.PostStatus.DRAFT)
-                .scheduledFor(request.getScheduledFor())
-                .authorId(authorId)
-                .tags(new HashSet<>())
-                .build();
+        Post post = postMapper.toEntity(request);
+        post.setProjectId(projectId);
+        post.setTenantId(tenantId);
+        post.setAuthorId(authorId);
+        post.setViewCount(0);
+        post.setTags(new HashSet<>());
 
         if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
             List<Tag> tags = tagRepository.findAllById(request.getTagIds());
@@ -96,31 +95,20 @@ public class PostService {
         }
 
         Post saved = postRepository.save(post);
-        return PostResponse.fromEntity(saved);
+        return postMapper.toResponse(saved);
     }
 
     @Transactional
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
+    @CacheEvict(value = {"changelogs", "changelog_posts", "posts"}, allEntries = true)
     public PostResponse updatePost(UUID tenantId, UUID postId, CreatePostRequest request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
 
-        if (!post.getTenantId().equals(tenantId)) {
-            throw new IllegalArgumentException("Access denied");
-        }
+        postMapper.updateEntity(request, post);
 
-        post.setTitle(request.getTitle());
-        post.setSummary(request.getSummary());
-        post.setContent(request.getContent());
-
-        if (request.getStatus() != null && post.getStatus() != request.getStatus()) {
-            post.setStatus(request.getStatus());
-            if (request.getStatus() == Post.PostStatus.PUBLISHED && post.getPublishedAt() == null) {
-                post.setPublishedAt(LocalDateTime.now());
-            }
-        }
-
-        if (request.getScheduledFor() != null) {
-            post.setScheduledFor(request.getScheduledFor());
+        if (request.getStatus() == Post.PostStatus.PUBLISHED && post.getPublishedAt() == null) {
+            post.setPublishedAt(LocalDateTime.now());
         }
 
         if (request.getTagIds() != null) {
@@ -129,41 +117,36 @@ public class PostService {
         }
 
         Post updated = postRepository.save(post);
-        return PostResponse.fromEntity(updated);
+        return postMapper.toResponse(updated);
     }
 
     @Transactional
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
+    @CacheEvict(value = {"changelogs", "changelog_posts", "posts"}, allEntries = true)
     public PostResponse publishPost(UUID tenantId, UUID postId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdWithTags(tenantId, postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
-
-        if (!post.getTenantId().equals(tenantId)) {
-            throw new IllegalArgumentException("Access denied");
-        }
 
         post.setStatus(Post.PostStatus.PUBLISHED);
         post.setPublishedAt(LocalDateTime.now());
 
         Post updated = postRepository.save(post);
 
-        // Notify subscribers asynchronously (catches its own exceptions)
         try {
             subscriberNotificationService.notifySubscribers(updated);
         } catch (Exception e) {
             log.error("Failed to trigger subscriber notifications for post {}: {}", postId, e.getMessage());
         }
 
-        return PostResponse.fromEntity(updated);
+        return postMapper.toResponse(updated);
     }
 
     @Transactional
+    @PreAuthorize("@tenantSecurity.isMember(authentication, #tenantId)")
+    @CacheEvict(value = {"changelogs", "changelog_posts", "posts"}, allEntries = true)
     public void deletePost(UUID tenantId, UUID postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
-
-        if (!post.getTenantId().equals(tenantId)) {
-            throw new IllegalArgumentException("Access denied");
-        }
 
         postRepository.delete(post);
     }
