@@ -16,6 +16,7 @@
     <modules>
         <module>saas-os-core</module>
         <module>apps/09-changelog-platform</module>
+        <module>apps/app-01-client-portal</module>
     </modules>
 
     <properties>
