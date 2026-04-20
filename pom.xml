@@ -20,6 +20,7 @@
         <module>apps/02-team-feedback-roadmap</module>
         <module>apps/05-document-approval-workflow</module>
         <module>apps/03-ai-knowledge-base</module>
+        <module>apps/07-lightweight-issue-tracker</module>
     </modules>
 
     <properties>
