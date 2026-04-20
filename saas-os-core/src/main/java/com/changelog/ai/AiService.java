@@ -1,5 +1,7 @@
 package com.changelog.ai;
 
+import com.changelog.dto.AiDuplicateCheckResponse;
+import com.changelog.dto.AiPriorityResponse;
 import com.changelog.dto.AiRewriteResponse;
 import com.changelog.dto.AiTitleResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,6 +50,56 @@ public class AiService {
         String response = callLlm(prompt);
         List<String> titles = parseTitlesFromResponse(response);
         return new AiTitleResponse(titles);
+    }
+
+    public AiDuplicateCheckResponse checkDuplicateIssue(String newIssueTitle, String newIssueDescription, List<String> existingIssues) {
+        String existingIssuesStr = existingIssues.stream().collect(Collectors.joining("\n- "));
+        String prompt = String.format(
+                "You are an AI assistant for a software development team. Check if the following new issue is a duplicate of any existing issues.\n\n" +
+                "New Issue Title: %s\n" +
+                "New Issue Description: %s\n\n" +
+                "Existing Issues:\n- %s\n\n" +
+                "Return ONLY a JSON object in this exact format: {\"isDuplicate\": true/false, \"confidenceScore\": 0.0-1.0, \"reason\": \"explanation\"}. " +
+                "No markdown, no explanation, just the JSON object.",
+                newIssueTitle, newIssueDescription, existingIssuesStr
+        );
+
+        String response = callLlm(prompt);
+        return parseResponse(response, AiDuplicateCheckResponse.class);
+    }
+
+    public AiPriorityResponse suggestIssuePriority(String title, String description) {
+        String prompt = String.format(
+                "You are an AI assistant for a software development team. Suggest a priority (LOW, MEDIUM, HIGH, URGENT) for the following issue based on its title and description.\n\n" +
+                "Title: %s\n" +
+                "Description: %s\n\n" +
+                "Return ONLY a JSON object in this exact format: {\"priority\": \"PRIORITY\", \"reason\": \"explanation\"}. " +
+                "No markdown, no explanation, just the JSON object.",
+                title, description
+        );
+
+        String response = callLlm(prompt);
+        return parseResponse(response, AiPriorityResponse.class);
+    }
+
+    private <T> T parseResponse(String response, Class<T> clazz) {
+        String cleaned = response.trim();
+        if (cleaned.startsWith("```")) {
+            int firstNewline = cleaned.indexOf('\n');
+            if (firstNewline > 0) {
+                cleaned = cleaned.substring(firstNewline + 1);
+            }
+        }
+        if (cleaned.endsWith("```")) {
+            cleaned = cleaned.substring(0, cleaned.length() - 3);
+        }
+        cleaned = cleaned.trim();
+
+        try {
+            return objectMapper.readValue(cleaned, clazz);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse LLM response: " + cleaned, e);
+        }
     }
 
     private String callLlm(String prompt) {

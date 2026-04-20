@@ -15,6 +15,7 @@
 
     <modules>
         <module>saas-os-core</module>
+        <module>apps/07-lightweight-issue-tracker</module>
         <module>apps/09-changelog-platform</module>
     </modules>
 
