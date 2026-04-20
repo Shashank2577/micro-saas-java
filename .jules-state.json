@@ -1,0 +1,11 @@
+{
+  "plan_file": ".jules-plan.json",
+  "repo": "Shashank2577/micro-saas-java",
+  "started_at": "2026-04-19T11:46:00Z",
+  "current_batch": 1,
+  "sessions": [
+    { "task_id": "t1", "title": "Shared Identity Registry Refactor", "session_id": "5724718512342521846", "state": "PLANNING" },
+    { "task_id": "t2", "title": "Global Slug Resolver Implementation", "session_id": "80768176470580205", "state": "PLANNING" },
+    { "task_id": "t3", "title": "Dynamic Security & Multi-App CORS", "session_id": "14536485159626996983", "state": "PLANNING" }
+  ]
+}
