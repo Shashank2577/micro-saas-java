@@ -1,0 +1,2 @@
+- **Decision**: Mocked AI integration for `AiOnboardingService` instead of copying `changelog-platform/com/changelog/ai` classes since `saas-os-core` doesn't physically contain them and to keep App 06 decoupled. The mock will simulate AI plan generation and description rewriting.
+- **Decision Update**: Creating a minimal `AiOnboardingService` in `apps/06-employee-onboarding-orchestrator` with stubbed methods. Will not copy `LiteLlmClient` from App 09 to keep it simple, as `saas-os-core` is just a mocked POM in my environment right now to make the build pass.

@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: employee-onboarding-orchestrator
+  datasource:
+    url: jdbc:postgresql://localhost:5432/saas_os
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+
+server:
+  port: 8086
