@@ -18,6 +18,7 @@
         <module>apps/09-changelog-platform</module>
         <module>apps/06-employee-onboarding-orchestrator</module>
         <module>apps/02-team-feedback-roadmap</module>
+        <module>apps/05-document-approval-workflow</module>
     </modules>
 
     <properties>
