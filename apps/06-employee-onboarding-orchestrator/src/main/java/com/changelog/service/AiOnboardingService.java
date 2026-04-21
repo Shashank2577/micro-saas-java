@@ -6,6 +6,7 @@ import com.changelog.repository.OnboardingTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -43,7 +44,7 @@ public class AiOnboardingService {
         log.info("Rewriting descriptions using AI for template {}", templateId);
 
         OnboardingTemplate template = templateRepository.findByIdAndTenantId(templateId, tenantId)
-                .orElseThrow(() -> new RuntimeException("Template not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Template not found"));
 
         for (TemplateTask task : template.getTasks()) {
             task.setDescription("AI Rewritten: " + task.getDescription());

@@ -5,6 +5,7 @@ import com.changelog.okr.repository.OkrCycleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class OkrCycleService {
     @Transactional(readOnly = true)
     public OkrCycle getCycle(UUID cycleId, UUID tenantId) {
         return cycleRepository.findByIdAndTenantId(cycleId, tenantId)
-                .orElseThrow(() -> new RuntimeException("OKR cycle not found"));
+                .orElseThrow(() -> new EntityNotFoundException("OKR cycle not found"));
     }
 
     @Transactional

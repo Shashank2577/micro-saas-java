@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
+import com.changelog.exception.ForbiddenException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -38,7 +40,7 @@ public class DocumentService {
 
     private void verifyTenant(UUID tenantId) {
         if (!getCurrentTenantId().equals(tenantId)) {
-            throw new RuntimeException("Access Denied");
+            throw new ForbiddenException("You do not have access to this document");
         }
     }
 
@@ -94,7 +96,7 @@ public class DocumentService {
     @Transactional(readOnly = true)
     public Document getDocument(UUID documentId) {
         Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Document not found"));
         verifyTenant(document.getTenantId());
         return document;
     }

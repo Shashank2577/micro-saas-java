@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
@@ -33,13 +34,13 @@ public class InvoiceService {
     @Transactional(readOnly = true)
     public Invoice getInvoice(UUID invoiceId, UUID tenantId) {
         return invoiceRepository.findByIdAndTenantId(invoiceId, tenantId)
-                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
     }
 
     @Transactional(readOnly = true)
     public Invoice getInvoiceByPublicToken(String token) {
         return invoiceRepository.findByPublicToken(token)
-                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
     }
 
     @Transactional

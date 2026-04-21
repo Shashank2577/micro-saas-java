@@ -12,6 +12,7 @@ import com.changelog.issuetracker.repository.IssueEventRepository;
 import com.changelog.issuetracker.repository.IssueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class IssueService {
 
     public Issue getIssue(UUID id, UUID tenantId) {
         return issueRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new RuntimeException("Issue not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Issue not found"));
     }
 
     @Transactional
@@ -103,7 +104,7 @@ public class IssueService {
     @Transactional
     public void deleteComment(UUID commentId, UUID tenantId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
         // Check tenant isolation via issue
         getIssue(comment.getIssue().getId(), tenantId);
         commentRepository.delete(comment);
@@ -112,7 +113,7 @@ public class IssueService {
     @Transactional
     public Comment updateComment(UUID commentId, String content, UUID tenantId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
         // Check tenant isolation via issue
         getIssue(comment.getIssue().getId(), tenantId);
         comment.setContent(content);

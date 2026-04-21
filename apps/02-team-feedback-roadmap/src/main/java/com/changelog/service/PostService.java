@@ -9,6 +9,7 @@ import com.changelog.repository.PostStatusHistoryRepository;
 import com.changelog.repository.PostVoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -37,13 +38,13 @@ public class PostService {
     @Transactional(readOnly = true)
     public FeedbackPost getPost(UUID postId, UUID tenantId) {
         return postRepository.findByIdAndTenantId(postId, tenantId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
     }
 
     @Transactional(readOnly = true)
     public FeedbackPost getPublicPost(UUID postId, UUID tenantId) {
         return postRepository.findByIdAndTenantIdAndIsPublicTrue(postId, tenantId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
     }
 
     @Transactional
