@@ -1,15 +1,13 @@
-# Handoff for WO-002
+# Handoff: WO-001 Fix Tenant Isolation Across All Apps
 
 ## What Was Built
-Replaced over 20+ instances of throwing raw `RuntimeException` across apps 02, 04, 05, 06, 07, and 10 with new specific domain exceptions: `EntityNotFoundException`, `ForbiddenException`, and standard `IllegalStateException`.
-Updated `GlobalExceptionHandler` to translate these domain exceptions properly into RESTful HTTP 403, 404, and 409 responses.
-Patched `ObjectiveService.updateKeyResult()` in App 10 to check tenantId bounds manually returning a secure `EntityNotFoundException` instead of leaking resource existence status.
+- In **App 01**, updated `PortalController` to replace insecure fallback methods with proper JWT-based `tenantId` resolution via `TenantResolver`.
+- In **App 03**, scrubbed `X-Tenant-ID` header injection from all controllers (`AiController`, `KbPageController`, `SearchController`, `SpaceController`), replacing it with standard `@AuthenticationPrincipal Jwt` handling. Also fixed `userId` extraction.
+- In **App 06**, scrubbed `X-Tenant-ID` and `X-User-ID` parameters from all orchestrator controllers, using secure JWT claims. Verified that the unauthenticated `PortalController` was not dependent on these headers.
+- In **App 10**, added logic in `ObjectiveService` to traverse the `KeyResult -> Objective -> OkrCycle` relationship, throwing an `EntityNotFoundException` if the `tenantId` does not match the parent cycle. The target controller `OkrController` already had `@AuthenticationPrincipal Jwt jwt` in the original repository branch.
 
-## Deviations from Spec
-- App 05's `IllegalStateException` request for "Workflow is not active" text wasn't directly found in current `WorkflowService` codebase to replace, thus changes focused on existing `Access Denied` handling instead.
-- Automated tests execution locally failed due to Docker Hub unauthenticated rate-limit on `minio/minio` etc, so we confirmed code validity primarily through strict `mvn compile`.
+## Deviations
+None. The requested work order requirements were strictly implemented as-is.
 
-## How to Verify
-1. Verify `GlobalExceptionHandler` mapping in `saas-os-core/src/main/java/com/changelog/config/GlobalExceptionHandler.java`.
-2. Inspect `ObjectiveService.updateKeyResult()` in App 10 for tenant authorization logic via `EntityNotFoundException`.
-3. Run `mvn compile` over the changed modules.
+## Verification
+- Applications were successfully compiled (`mvn compile -pl apps/01...`).

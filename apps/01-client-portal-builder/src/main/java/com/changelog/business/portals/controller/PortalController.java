@@ -4,10 +4,12 @@ import com.changelog.business.portals.dto.CreatePortalRequest;
 import com.changelog.business.portals.dto.PortalResponse;
 import com.changelog.business.portals.model.Portal;
 import com.changelog.business.portals.service.PortalService;
+import com.changelog.config.TenantResolver;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,24 +22,11 @@ import java.util.stream.Collectors;
 public class PortalController {
 
     private final PortalService portalService;
-    // For now, we will extract tenantId manually if TenantResolver is not available in the dependency.
-    // In a real scenario, this would be injected or extracted via a shared lib.
-    
-    private UUID getTenantId(JwtAuthenticationToken jwt) {
-        if (jwt == null || jwt.getToken() == null) {
-            // Fallback for local development if needed, or throw exception
-            return UUID.fromString("550e8400-e29b-41d4-a716-446655440000"); // demo tenant
-        }
-        String tenantIdStr = jwt.getToken().getClaimAsString("tenant_id");
-        if (tenantIdStr != null) {
-            return UUID.fromString(tenantIdStr);
-        }
-        return UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
-    }
+    private final TenantResolver tenantResolver;
 
     @GetMapping
-    public ResponseEntity<List<PortalResponse>> listPortals(JwtAuthenticationToken jwt) {
-        UUID tenantId = getTenantId(jwt);
+    public ResponseEntity<List<PortalResponse>> listPortals(@AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId = tenantResolver.getTenantId(jwt);
         List<PortalResponse> portals = portalService.getPortals(tenantId)
                 .stream()
                 .map(PortalResponse::fromEntity)
@@ -46,8 +35,8 @@ public class PortalController {
     }
 
     @PostMapping
-    public ResponseEntity<PortalResponse> createPortal(@Valid @RequestBody CreatePortalRequest request, JwtAuthenticationToken jwt) {
-        UUID tenantId = getTenantId(jwt);
+    public ResponseEntity<PortalResponse> createPortal(@Valid @RequestBody CreatePortalRequest request, @AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId = tenantResolver.getTenantId(jwt);
         Portal portal = new Portal();
         portal.setTenantId(tenantId);
         portal.setName(request.getName());
@@ -62,16 +51,16 @@ public class PortalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PortalResponse> getPortal(@PathVariable UUID id, JwtAuthenticationToken jwt) {
-        UUID tenantId = getTenantId(jwt);
+    public ResponseEntity<PortalResponse> getPortal(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId = tenantResolver.getTenantId(jwt);
         return portalService.getPortal(id, tenantId)
                 .map(portal -> ResponseEntity.ok(PortalResponse.fromEntity(portal)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> archivePortal(@PathVariable UUID id, JwtAuthenticationToken jwt) {
-        UUID tenantId = getTenantId(jwt);
+    public ResponseEntity<Void> archivePortal(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId = tenantResolver.getTenantId(jwt);
         portalService.archivePortal(id, tenantId);
         return ResponseEntity.noContent().build();
     }
