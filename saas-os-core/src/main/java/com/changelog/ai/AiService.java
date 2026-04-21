@@ -52,43 +52,34 @@ public class AiService {
         return new AiTitleResponse(titles);
     }
 
-    public AiDuplicateCheckResponse checkDuplicateIssue(String title, String description, List<String> existingTitles) {
-        String existing = String.join("\n", existingTitles);
+    public AiDuplicateCheckResponse checkDuplicateIssue(String newIssueTitle, String newIssueDescription, List<String> existingIssues) {
+        String existingIssuesStr = existingIssues.stream().collect(Collectors.joining("\n- "));
         String prompt = String.format(
-                "Check if the following issue is a duplicate of any in the list. " +
-                "Return JSON: {\"duplicate\": true/false, \"similarIssueTitle\": \"...\", \"confidence\": 0.0-1.0}\n\n" +
-                "New issue: %s - %s\n\nExisting issues:\n%s",
-                title, description, existing
+                "You are an AI assistant for a software development team. Check if the following new issue is a duplicate of any existing issues.\n\n" +
+                "New Issue Title: %s\n" +
+                "New Issue Description: %s\n\n" +
+                "Existing Issues:\n- %s\n\n" +
+                "Return ONLY a JSON object in this exact format: {\"isDuplicate\": true/false, \"confidenceScore\": 0.0-1.0, \"reason\": \"explanation\"}. " +
+                "No markdown, no explanation, just the JSON object.",
+                newIssueTitle, newIssueDescription, existingIssuesStr
         );
-        try {
-            String response = callLlm(prompt);
-            var node = objectMapper.readTree(response);
-            return new AiDuplicateCheckResponse(
-                    node.path("duplicate").asBoolean(false),
-                    node.path("similarIssueTitle").asText(""),
-                    node.path("confidence").asDouble(0.0)
-            );
-        } catch (Exception e) {
-            return new AiDuplicateCheckResponse(false, "", 0.0);
-        }
+
+        String response = callLlm(prompt);
+        return parseResponse(response, AiDuplicateCheckResponse.class);
     }
 
     public AiPriorityResponse suggestIssuePriority(String title, String description) {
         String prompt = String.format(
-                "Suggest priority for this issue. Return JSON: {\"priority\": \"low|medium|high|critical\", \"reasoning\": \"...\"}\n\n" +
-                "Issue: %s - %s",
+                "You are an AI assistant for a software development team. Suggest a priority (LOW, MEDIUM, HIGH, URGENT) for the following issue based on its title and description.\n\n" +
+                "Title: %s\n" +
+                "Description: %s\n\n" +
+                "Return ONLY a JSON object in this exact format: {\"priority\": \"PRIORITY\", \"reason\": \"explanation\"}. " +
+                "No markdown, no explanation, just the JSON object.",
                 title, description
         );
-        try {
-            String response = callLlm(prompt);
-            var node = objectMapper.readTree(response);
-            return new AiPriorityResponse(
-                    node.path("priority").asText("medium"),
-                    node.path("reasoning").asText("")
-            );
-        } catch (Exception e) {
-            return new AiPriorityResponse("medium", "Could not determine priority");
-        }
+
+        String response = callLlm(prompt);
+        return parseResponse(response, AiPriorityResponse.class);
     }
 
     /**
@@ -119,6 +110,26 @@ public class AiService {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("LLM call failed: " + e.getMessage(), e);
+        }
+    }
+
+    private <T> T parseResponse(String response, Class<T> clazz) {
+        String cleaned = response.trim();
+        if (cleaned.startsWith("```")) {
+            int firstNewline = cleaned.indexOf('\n');
+            if (firstNewline > 0) {
+                cleaned = cleaned.substring(firstNewline + 1);
+            }
+        }
+        if (cleaned.endsWith("```")) {
+            cleaned = cleaned.substring(0, cleaned.length() - 3);
+        }
+        cleaned = cleaned.trim();
+
+        try {
+            return objectMapper.readValue(cleaned, clazz);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse LLM response: " + cleaned, e);
         }
     }
 

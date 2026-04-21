@@ -1,12 +1,13 @@
 package com.changelog.dto;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@RequiredArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AiPriorityResponse {
-    private final String priority;
-    private final String reasoning;
-
-    public String getPriority() { return priority; }
-    public String getReasoning() { return reasoning; }
+    private String priority;
+    private String reason;
 }

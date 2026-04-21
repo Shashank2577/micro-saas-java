@@ -52,10 +52,10 @@ public class Issue {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @Column(name = "content_tsv", columnDefinition = "tsvector")
+    @Column(name = "content_tsv")
     private String contentTsv;
 
-    @Column(name = "embedding", columnDefinition = "vector(1536)")
+    @Column(name = "embedding")
     private float[] embedding;
 
     @CreatedDate

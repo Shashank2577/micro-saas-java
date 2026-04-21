@@ -1,41 +1,51 @@
 spring:
   application:
     name: lightweight-issue-tracker
-
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/changelog}
-    username: ${DATABASE_USERNAME:changelog}
-    password: ${DATABASE_PASSWORD:changelog}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/issuetracker}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: create-drop
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
   flyway:
-    enabled: true
-    table: flyway_schema_history_07
-    baseline-on-migrate: true
-    baseline-version: 0
+    enabled: false
     locations: classpath:db/migration
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/changelog}
-          jwk-set-uri: ${KEYCLOAK_JWK_URI:http://localhost:8080/realms/changelog/protocol/openid-connect/certs}
-
 server:
-  port: ${SERVER_PORT:8087}
-  error:
-    include-message: always
+  port: 8081
+
+ai:
+  model: gpt-4
+  gateway-url: http://localhost:8000
 
 minio:
-  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
-  access-key: ${MINIO_ACCESS_KEY:minioadmin}
-  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: changelog-attachments
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false

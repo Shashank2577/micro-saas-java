@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface IssueRepository extends JpaRepository<Issue, UUID> {
     List<Issue> findAllByTenantIdAndProjectId(UUID tenantId, UUID projectId);
     Optional<Issue> findByIdAndTenantId(UUID id, UUID tenantId);
-    
+
     @Query("SELECT i FROM Issue i WHERE i.tenantId = :tenantId AND (LOWER(i.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(i.description) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Issue> searchIssues(@Param("tenantId") UUID tenantId, @Param("query") String query);
 

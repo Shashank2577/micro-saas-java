@@ -1,14 +1,14 @@
 package com.changelog.dto;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@RequiredArgsConstructor
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AiDuplicateCheckResponse {
-    private final boolean duplicate;
-    private final String similarIssueTitle;
-    private final double confidence;
-
-    public boolean isDuplicate() { return duplicate; }
-    public String getSimilarIssueTitle() { return similarIssueTitle; }
-    public double getConfidence() { return confidence; }
+    private boolean isDuplicate;
+    private Double confidenceScore;
+    private String reason;
 }

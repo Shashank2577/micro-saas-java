@@ -4,7 +4,6 @@ import com.changelog.issuetracker.model.Project;
 import com.changelog.issuetracker.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class ProjectService {
 
     public Project getProject(UUID id, UUID tenantId) {
         return projectRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+                .orElseThrow(() -> new RuntimeException("Project not found"));
     }
 
     @Transactional

@@ -12,7 +12,6 @@ import com.changelog.issuetracker.repository.IssueEventRepository;
 import com.changelog.issuetracker.repository.IssueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class IssueService {
 
     public Issue getIssue(UUID id, UUID tenantId) {
         return issueRepository.findByIdAndTenantId(id, tenantId)
-                .orElseThrow(() -> new EntityNotFoundException("Issue not found"));
+                .orElseThrow(() -> new RuntimeException("Issue not found"));
     }
 
     @Transactional
@@ -42,10 +41,10 @@ public class IssueService {
         if (issue.getId() == null) {
             issue.setId(UUID.randomUUID());
         }
-        
+
         Long maxNumber = issueRepository.findMaxNumberByProjectId(issue.getProject().getId());
         issue.setNumber(maxNumber == null ? 1L : maxNumber + 1);
-        
+
         Issue savedIssue = issueRepository.save(issue);
         logEvent(savedIssue, issue.getReporterId(), "ISSUE_CREATED", null, "Created");
         return savedIssue;
@@ -54,12 +53,12 @@ public class IssueService {
     @Transactional
     public Issue updateIssue(UUID id, Issue issueDetails, UUID tenantId, UUID actorId) {
         Issue issue = getIssue(id, tenantId);
-        
+
         if (!issue.getStatus().equals(issueDetails.getStatus())) {
             logEvent(issue, actorId, "STATUS_CHANGED", issue.getStatus(), issueDetails.getStatus());
             issue.setStatus(issueDetails.getStatus());
         }
-        
+
         if (!issue.getPriority().equals(issueDetails.getPriority())) {
             logEvent(issue, actorId, "PRIORITY_CHANGED", issue.getPriority(), issueDetails.getPriority());
             issue.setPriority(issueDetails.getPriority());
@@ -69,7 +68,7 @@ public class IssueService {
         issue.setDescription(issueDetails.getDescription());
         issue.setAssigneeId(issueDetails.getAssigneeId());
         issue.setDueDate(issueDetails.getDueDate());
-        
+
         return issueRepository.save(issue);
     }
 
@@ -104,7 +103,7 @@ public class IssueService {
     @Transactional
     public void deleteComment(UUID commentId, UUID tenantId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
         // Check tenant isolation via issue
         getIssue(comment.getIssue().getId(), tenantId);
         commentRepository.delete(comment);
@@ -113,7 +112,7 @@ public class IssueService {
     @Transactional
     public Comment updateComment(UUID commentId, String content, UUID tenantId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Comment not found"));
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
         // Check tenant isolation via issue
         getIssue(comment.getIssue().getId(), tenantId);
         comment.setContent(content);
@@ -125,7 +124,7 @@ public class IssueService {
         List<String> existingIssueTitles = recentIssues.stream()
                 .map(i -> i.getTitle())
                 .collect(Collectors.toList());
-        
+
         return aiService.checkDuplicateIssue(title, description, existingIssueTitles);
     }
 

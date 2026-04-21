@@ -15,6 +15,7 @@
 
     <modules>
         <module>saas-os-core</module>
+        <module>apps/07-lightweight-issue-tracker</module>
         <module>apps/09-changelog-platform</module>
         <module>apps/06-employee-onboarding-orchestrator</module>
         <module>apps/01-client-portal-builder</module>
