@@ -20,6 +20,7 @@ com/changelog/business/acquisition/dto/CreateLandingPageRequest$LandingVariantRe
 com/changelog/ai/AiService.class
 com/changelog/business/retention/repository/DripEnrollmentRepository.class
 com/changelog/business/monetization/model/StripeSubscription.class
+com/changelog/ai/EmbeddingResponse$EmbeddingData.class
 com/changelog/business/monetization/dto/StripeWebhookEvent$ObjectWrapper.class
 com/changelog/business/acquisition/model/LandingPage$LandingPageBuilder.class
 com/changelog/config/LocalTenantResolver.class
@@ -77,6 +78,7 @@ com/changelog/business/success/service/SupportTicketService.class
 com/changelog/business/intelligence/service/FunnelAnalyticsService$StandardFunnels.class
 com/changelog/business/acquisition/dto/CreateLandingPageRequest$CreateLandingPageRequestBuilder.class
 com/changelog/business/intelligence/model/FunnelAnalytics.class
+com/changelog/ai/EmbeddingRequest.class
 com/changelog/business/success/service/CustomerHealthScoringService.class
 com/changelog/business/intelligence/repository/UnitEconomicsRepository.class
 com/changelog/config/GlobalExceptionHandler.class
@@ -91,6 +93,7 @@ com/changelog/repository/ProjectRepository.class
 com/changelog/business/monetization/dto/StripeWebhookEvent.class
 com/changelog/business/success/repository/SupportTicketRepository.class
 com/changelog/dto/ProjectResponse.class
+com/changelog/ai/EmbeddingResponse.class
 com/changelog/business/monetization/dto/CheckoutSessionRequest$CheckoutSessionRequestBuilder.class
 com/changelog/config/JwtTenantResolver.class
 com/changelog/business/intelligence/service/FunnelAnalyticsService.class
@@ -98,6 +101,7 @@ com/changelog/business/monetization/service/StripeCheckoutService.class
 com/changelog/business/intelligence/repository/AnalyticsEventRepository.class
 com/changelog/business/success/controller/SupportTicketController.class
 com/changelog/ai/ChatCompletionResponse$Choice.class
+com/changelog/ai/EmbeddingRequest$EmbeddingRequestBuilder.class
 com/changelog/model/Project$ProjectBuilder.class
 com/changelog/business/acquisition/model/LandingVariant.class
 com/changelog/dto/AiRewriteResponse.class

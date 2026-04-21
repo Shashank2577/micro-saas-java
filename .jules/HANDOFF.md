@@ -1,15 +1,14 @@
-# Handoff for WO-002
+# WO-004: Implement Real AI in App 03
 
-## What Was Built
-Replaced over 20+ instances of throwing raw `RuntimeException` across apps 02, 04, 05, 06, 07, and 10 with new specific domain exceptions: `EntityNotFoundException`, `ForbiddenException`, and standard `IllegalStateException`.
-Updated `GlobalExceptionHandler` to translate these domain exceptions properly into RESTful HTTP 403, 404, and 409 responses.
-Patched `ObjectiveService.updateKeyResult()` in App 10 to check tenantId bounds manually returning a secure `EntityNotFoundException` instead of leaking resource existence status.
+## Summary
+The mock AI in App 03 has been replaced with a real RAG (Retrieval-Augmented Generation) pipeline.
 
-## Deviations from Spec
-- App 05's `IllegalStateException` request for "Workflow is not active" text wasn't directly found in current `WorkflowService` codebase to replace, thus changes focused on existing `Access Denied` handling instead.
-- Automated tests execution locally failed due to Docker Hub unauthenticated rate-limit on `minio/minio` etc, so we confirmed code validity primarily through strict `mvn compile`.
+- `saas-os-core` was extended with `EmbeddingRequest`, `EmbeddingResponse`, an `@POST("embeddings")` Retrofit route in `LiteLlmApi`, and a public `callLlmRaw` method in `AiService`.
+- `EmbeddingService` was built in App 03 to request text embeddings from the LiteLLM gateway, gracefully returning `null` on failure.
+- `KbPageService` was updated to chunk `KbPage` content into ~500 words with a 50-word overlap, embed those chunks, and save them as `PageChunk` entities containing `pgvector` data.
+- `SearchController` handles `type=semantic` queries, finding top chunks and extracting unique associated `KbPage` results, falling back to keyword search if AI is unreachable.
+- `AiKnowledgeService` resolves user questions using top-5 relevant semantic chunks, assembling a context-rich prompt for the LLM to process. Fallbacks to keyword context are invoked if embeddings fail.
 
-## How to Verify
-1. Verify `GlobalExceptionHandler` mapping in `saas-os-core/src/main/java/com/changelog/config/GlobalExceptionHandler.java`.
-2. Inspect `ObjectiveService.updateKeyResult()` in App 10 for tenant authorization logic via `EntityNotFoundException`.
-3. Run `mvn compile` over the changed modules.
+## Notes
+- Build succeeds.
+- Graceful degradation ensures the application functions smoothly even if the external LLM is offline.

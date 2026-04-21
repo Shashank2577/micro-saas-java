@@ -1,10 +1,31 @@
-1. **Create `EntityNotFoundException.java`** in `saas-os-core/src/main/java/com/changelog/exception/`.
-2. **Create `ForbiddenException.java`** in `saas-os-core/src/main/java/com/changelog/exception/`.
-3. **Update `GlobalExceptionHandler.java`** in `saas-os-core` to map `ForbiddenException` to 403 and `IllegalStateException` to 409.
-4. **Build `saas-os-core`**: `mvn install -pl saas-os-core`.
-5. **Update App 02** (`BoardService`, `PostService`, `PublicFeedbackController` etc.) to use `EntityNotFoundException`.
-6. **Update App 04** (`ClientService`, `InvoiceService`) to use `EntityNotFoundException`.
-7. **Update App 05** (`DocumentService`, `WorkflowService`, `ApprovalService`, `WorkflowTemplateService`) to use `EntityNotFoundException`, `ForbiddenException`, and `IllegalStateException` where required.
-8. **Update App 06** (`OnboardingTemplateService`, `TaskInstanceService`, `AiOnboardingService`, `OnboardingInstanceService`) to use `EntityNotFoundException`.
-9. **Update App 07** (`ProjectService`, `IssueService`, `LabelService`, `CommentService` if any) to use `EntityNotFoundException`.
-10. **Update App 10** (`ObjectiveService`, `OkrCycleService`) to use `EntityNotFoundException`. Add correct tenant ownership check in `ObjectiveService.updateKeyResult()`.
+1. **Core Changes (saas-os-core)**
+   - Add `EmbeddingRequest`, `EmbeddingResponse` to `com.changelog.ai`.
+   - Update `LiteLlmApi` to include `@POST("embeddings")`.
+   - Add public `callLlmRaw(String prompt)` to `AiService`.
+   - Rebuild core module.
+
+2. **EmbeddingService (App 03)**
+   - Create `EmbeddingService` in `apps/03-ai-knowledge-base/src/main/java/com/changelog/service/EmbeddingService.java`.
+   - Implement `generateEmbedding(String text)` with graceful error handling (returns null on error).
+   - Implement `toPGvector(float[])`.
+
+3. **KbPageService (App 03)**
+   - Add `indexPage(KbPage page)` method in `KbPageService`.
+   - Implement text chunking logic (500 words, 50 word overlap).
+   - Call `indexPage` at the end of `createPage` and `updatePage`.
+
+4. **PageChunkRepository Check (App 03)**
+   - Verify/Fix the existing `findSimilarChunks` native query. Use `Arrays.toString(floats).replace(" ", "")` to match the exact requirement, though the provided hint says `Arrays.toString(floats).replace(", ", ",")` might be better or `[0.1, 0.2]`. The repository query uses `CAST(:embedding AS vector)`.
+
+5. **AiKnowledgeService (App 03)**
+   - Update `askQuestion()` to use `EmbeddingService` for question.
+   - Use `findSimilarChunks`.
+   - If AI gateway fails (embedding is null), fallback.
+   - Construct prompt with context. Call `AiService.callLlmRaw()`. Parse and save answer.
+
+6. **SearchController (App 03)**
+   - Update `search()` endpoint to handle `type=semantic` logic.
+   - Distinct map over chunks to return relevant `KbPage`s. If embedding fails, fallback to `type=keyword`.
+
+7. **Verification**
+   - Run tests for `saas-os-core` and App 03. Ensure no regressions.

@@ -91,6 +91,10 @@ public class AiService {
         }
     }
 
+    public String callLlmRaw(String prompt) {
+        return callLlm(prompt);
+    }
+
     private String callLlm(String prompt) {
         try {
             var messages = List.of(Map.of("role", "user", "content", prompt));

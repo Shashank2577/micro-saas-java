@@ -1,6 +1,8 @@
 /app/saas-os-core/src/main/java/com/changelog/ai/AiService.java
 /app/saas-os-core/src/main/java/com/changelog/ai/ChatCompletionRequest.java
 /app/saas-os-core/src/main/java/com/changelog/ai/ChatCompletionResponse.java
+/app/saas-os-core/src/main/java/com/changelog/ai/EmbeddingRequest.java
+/app/saas-os-core/src/main/java/com/changelog/ai/EmbeddingResponse.java
 /app/saas-os-core/src/main/java/com/changelog/ai/LiteLlmApi.java
 /app/saas-os-core/src/main/java/com/changelog/ai/LiteLlmClient.java
 /app/saas-os-core/src/main/java/com/changelog/business/acquisition/controller/LandingPageController.java
