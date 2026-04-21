@@ -1,26 +1,14 @@
-# Verification Report for WO-002
+# Verification Report - WO-003
 
-## Goal
-Replace generic `RuntimeException` with specific domain exceptions (`EntityNotFoundException`, `ForbiddenException`, `IllegalStateException`) across multiple applications and map them correctly in `GlobalExceptionHandler`.
+## Build Results
+- `mvn compile -pl saas-os-core`: SUCCESS
+- `mvn install -pl saas-os-core -DskipTests`: SUCCESS
 
-## Execution Results
-1. **saas-os-core**:
-    - Created `EntityNotFoundException` and `ForbiddenException`.
-    - Updated `GlobalExceptionHandler` mapping:
-        - `ForbiddenException` -> `403 FORBIDDEN`
-        - `IllegalStateException` -> `409 CONFLICT`
-2. **App 02**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`.
-3. **App 04**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`.
-4. **App 05**: Replaced `RuntimeException("Access Denied")` with `ForbiddenException` and used `EntityNotFoundException` for missing entities.
-5. **App 06**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`.
-6. **App 07**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`.
-7. **App 10**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`. Corrected tenant ownership leak in `ObjectiveService.updateKeyResult()`.
+## Test Results
+- Unit test for `epochToLocalDateTime` logic: PASSED (Verified via temporary test class).
+- Integration tests: BLOCKED due to local database unavailability in sandbox environment.
 
-## Compile Check
-```
-mvn compile -pl saas-os-core,apps/02-team-feedback-roadmap,apps/04-invoice-payment-tracker,apps/05-document-approval-workflow,apps/06-employee-onboarding-orchestrator,apps/07-lightweight-issue-tracker,apps/10-okr-goal-tracker
-```
-**Result**: BUILD SUCCESS. All modifications correctly type-checked.
-
-## Test Check
-Tests run could not fully initialize integration setups locally due to a Docker rate-limit constraint preventing Testcontainers / infrastructure from pulling required Postgres/Keycloak images. Logic validity heavily relies on successful compilation and careful code replacement rules adherence.
+## Changes Verified
+- Metadata inclusion in Checkout Session verified by code inspection of `StripeCheckoutService`.
+- Signature verification logic verified to compile and use SDK methods correctly.
+- Missing dependency `gson` added to `saas-os-core/pom.xml` to resolve compile errors.
