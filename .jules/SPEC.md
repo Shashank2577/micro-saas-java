@@ -1,8 +1,19 @@
-# App 06: Employee Onboarding Orchestrator
+# WO-002: Fix Error Handling — Domain Exceptions Instead of RuntimeException
 
-## Overview
-A new module under `apps/06-employee-onboarding-orchestrator` that manages structured onboarding plans for new hires. It allows HR managers to create onboarding templates containing tasks with different types and assignees, and then start an "onboarding instance" for a new hire. The app sends a magic link to the new hire to access their portal and complete tasks.
+## Problem
+Currently, the shared `GlobalExceptionHandler` maps `EntityNotFoundException` to 404, but many services throw a raw `RuntimeException` which translates to 500. Additionally, access denied is thrown as `RuntimeException` resulting in 500 instead of 403.
 
-## Architecture Rules
-1. **Module Location**: Create the app under `apps/06-employee-onboarding-orchestrator`.
-2. **Dependency**: `pom.xml` MUST have `saas-os-parent` as the parent and `saas-os-core` as a dependency. Wait, these modules don't exist yet! We need to create them or adjust. Ah, wait, the instructions say "chore: finalize monorepo root" might be in another branch. Wait, looking at git log, there is no `saas-os-parent`!
+## What's Missing
+1. A `ForbiddenException` mapped to 403
+2. An `IllegalStateException` handler mapped to 409
+3. Correct usage of `EntityNotFoundException` in all service `orElseThrow()` calls
+
+## Requirements
+1. Create `EntityNotFoundException` and `ForbiddenException` in `saas-os-core` if not already present.
+2. Update `GlobalExceptionHandler` in `saas-os-core` to map `ForbiddenException` to 403 and `IllegalStateException` to 409.
+3. Update `apps/02-team-feedback-roadmap` services to throw `EntityNotFoundException`.
+4. Update `apps/04-invoice-payment-tracker` services to throw `EntityNotFoundException`.
+5. Update `apps/05-document-approval-workflow` services to throw `EntityNotFoundException`, `ForbiddenException`, and `IllegalStateException`.
+6. Update `apps/06-employee-onboarding-orchestrator` services to throw `EntityNotFoundException`.
+7. Update `apps/07-lightweight-issue-tracker` services to throw `EntityNotFoundException`.
+8. Update `apps/10-okr-goal-tracker` services to throw `EntityNotFoundException` and handle tenant ownership logic.

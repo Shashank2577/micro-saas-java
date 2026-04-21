@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
+import com.changelog.exception.ForbiddenException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -44,7 +46,7 @@ public class ApprovalService {
 
     private void verifyTenant(UUID tenantId) {
         if (!getCurrentTenantId().equals(tenantId)) {
-            throw new RuntimeException("Access Denied");
+            throw new ForbiddenException("Access Denied");
         }
     }
 
@@ -71,7 +73,7 @@ public class ApprovalService {
 
     private void processAction(UUID stepId, String action, String comment) {
         WorkflowStepInstance step = stepRepository.findById(stepId)
-                .orElseThrow(() -> new RuntimeException("Step not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Step not found"));
         WorkflowInstance workflow = step.getWorkflow();
         
         verifyTenant(workflow.getTenantId());
@@ -79,7 +81,7 @@ public class ApprovalService {
         // Ensure user is authorized
         UUID userId = getCurrentUserId();
         if (step.getAssigneeId() != null && !step.getAssigneeId().equals(userId)) {
-            throw new RuntimeException("User not authorized to act on this step");
+            throw new ForbiddenException("User not authorized to act on this step");
         }
 
         step.setStatus(action);

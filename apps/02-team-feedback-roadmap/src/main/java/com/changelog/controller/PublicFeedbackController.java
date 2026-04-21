@@ -8,6 +8,7 @@ import com.changelog.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.changelog.exception.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class PublicFeedbackController {
     private UUID resolveTenantId(String slug) {
         return tenantRepository.findBySlug(slug)
                 .map(com.changelog.model.cc.Tenant::getId)
-                .orElseThrow(() -> new RuntimeException("Tenant not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Tenant not found"));
     }
 
     @GetMapping("/boards/{boardSlug}/posts")

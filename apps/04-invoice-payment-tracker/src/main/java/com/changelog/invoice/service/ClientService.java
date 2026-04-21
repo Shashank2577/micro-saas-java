@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class ClientService {
     @Transactional(readOnly = true)
     public Client getClient(UUID clientId, UUID tenantId) {
         return clientRepository.findByIdAndTenantId(clientId, tenantId)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Client not found"));
     }
 
     @Transactional

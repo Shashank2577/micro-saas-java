@@ -6,6 +6,7 @@ import com.changelog.okr.repository.KeyResultRepository;
 import com.changelog.okr.repository.ObjectiveRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class ObjectiveService {
     @Transactional(readOnly = true)
     public Objective getObjective(UUID objectiveId, UUID tenantId) {
         return objectiveRepository.findByIdAndTenantId(objectiveId, tenantId)
-                .orElseThrow(() -> new RuntimeException("Objective not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Objective not found"));
     }
 
     @Transactional
@@ -67,9 +68,14 @@ public class ObjectiveService {
     }
 
     @Transactional
-    public KeyResult updateKeyResult(UUID krId, KeyResult updates) {
+    public KeyResult updateKeyResult(UUID krId, UUID tenantId, KeyResult updates) {
         KeyResult existing = keyResultRepository.findById(krId)
-                .orElseThrow(() -> new RuntimeException("Key result not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Key result not found"));
+
+        if (!existing.getTenantId().equals(tenantId)) {
+            throw new EntityNotFoundException("Key result not found");
+        }
+
         existing.setTitle(updates.getTitle());
         existing.setCurrentValue(updates.getCurrentValue());
         existing.setConfidence(updates.getConfidence());

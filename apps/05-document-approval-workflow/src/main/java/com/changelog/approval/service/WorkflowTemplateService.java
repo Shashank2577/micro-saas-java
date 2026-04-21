@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
+import com.changelog.exception.ForbiddenException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -38,7 +40,7 @@ public class WorkflowTemplateService {
 
     private void verifyTenant(UUID tenantId) {
         if (!getCurrentTenantId().equals(tenantId)) {
-            throw new RuntimeException("Access Denied");
+            throw new ForbiddenException("Access Denied");
         }
     }
 
@@ -59,7 +61,7 @@ public class WorkflowTemplateService {
     @Transactional(readOnly = true)
     public WorkflowTemplate getTemplate(UUID templateId) {
         WorkflowTemplate template = templateRepository.findById(templateId)
-                .orElseThrow(() -> new RuntimeException("Template not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Template not found"));
         verifyTenant(template.getTenantId());
         return template;
     }

@@ -4,6 +4,7 @@ import com.changelog.model.Board;
 import com.changelog.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -23,13 +24,13 @@ public class BoardService {
     @Transactional(readOnly = true)
     public Board getBoard(UUID boardId, UUID tenantId) {
         return boardRepository.findByIdAndTenantId(boardId, tenantId)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Board not found"));
     }
 
     @Transactional(readOnly = true)
     public Board getBoardBySlug(UUID tenantId, String slug) {
         return boardRepository.findByTenantIdAndSlug(tenantId, slug)
-                .orElseThrow(() -> new RuntimeException("Board not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Board not found"));
     }
 
     @Transactional

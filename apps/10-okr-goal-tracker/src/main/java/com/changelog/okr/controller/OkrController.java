@@ -101,7 +101,8 @@ public class OkrController {
     }
 
     @PutMapping("/key-results/{krId}")
-    public ResponseEntity<KeyResult> updateKeyResult(@PathVariable UUID krId, @RequestBody KeyResult updates) {
-        return ResponseEntity.ok(objectiveService.updateKeyResult(krId, updates));
+    public ResponseEntity<KeyResult> updateKeyResult(@PathVariable UUID krId, @RequestBody KeyResult updates, @AuthenticationPrincipal Jwt jwt) {
+        UUID tenantId = tenantResolver.getTenantId(jwt);
+        return ResponseEntity.ok(objectiveService.updateKeyResult(krId, tenantId, updates));
     }
 }

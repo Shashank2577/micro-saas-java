@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import com.changelog.exception.EntityNotFoundException;
+import com.changelog.exception.ForbiddenException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -43,7 +45,7 @@ public class WorkflowService {
 
     private void verifyTenant(UUID tenantId) {
         if (!getCurrentTenantId().equals(tenantId)) {
-            throw new RuntimeException("Access Denied");
+            throw new ForbiddenException("Access Denied");
         }
     }
 
@@ -96,7 +98,7 @@ public class WorkflowService {
     @Transactional(readOnly = true)
     public WorkflowInstance getWorkflowStatus(UUID workflowId) {
         WorkflowInstance workflow = workflowRepository.findById(workflowId)
-                .orElseThrow(() -> new RuntimeException("Workflow not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Workflow not found"));
         verifyTenant(workflow.getTenantId());
         return workflow;
     }
