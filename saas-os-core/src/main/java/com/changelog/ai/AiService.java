@@ -91,6 +91,14 @@ public class AiService {
         }
     }
 
+    /**
+     * Exposes the private LLM call for services in other modules.
+     * Returns the raw string from the model. Throws RuntimeException on failure.
+     */
+    public String callLlmRaw(String prompt) {
+        return callLlm(prompt);
+    }
+
     private String callLlm(String prompt) {
         try {
             var messages = List.of(Map.of("role", "user", "content", prompt));
