@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
 
@@ -75,11 +76,16 @@ public class StripeWebhookService {
         Map<String, Object> subscriptionData = event.getData().getObject().getAttributes();
 
         String stripeSubscriptionId = (String) subscriptionData.get("id");
-        String stripeProductId = (String) ((Map<?, ?>) subscriptionData.get("items")).get("data"); // Extract product ID
 
-        // TODO: Map Stripe customer to our customer ID
-        UUID tenantId = UUID.fromString("00000000-0000-0000-0000-000000000000"); // Extract from metadata
-        UUID customerId = UUID.fromString("00000000-0000-0000-0000-000000000001"); // Map from Stripe customer
+        // Extract metadata
+        Map<String, String> metadata = (Map<String, String>) subscriptionData.get("metadata");
+        if (metadata == null || !metadata.containsKey("tenant_id") || !metadata.containsKey("customer_id")) {
+            log.error("Missing required metadata (tenant_id or customer_id) for subscription: {}", stripeSubscriptionId);
+            return;
+        }
+
+        UUID tenantId = UUID.fromString(metadata.get("tenant_id"));
+        UUID customerId = UUID.fromString(metadata.get("customer_id"));
 
         StripeSubscription subscription = subscriptionRepository.findByStripeId(stripeSubscriptionId)
                 .orElseGet(() -> createNewSubscription(stripeSubscriptionId, tenantId, customerId));
@@ -226,32 +232,34 @@ public class StripeWebhookService {
         subscription.setStatus((String) stripeData.get("status"));
 
         // Period
-        Map<String, Object> currentPeriodStart = (Map<String, Object>) stripeData.get("current_period_start");
-        Map<String, Object> currentPeriodEnd = (Map<String, Object>) stripeData.get("current_period_end");
-
-        if (currentPeriodStart != null) {
-            subscription.setCurrentPeriodStart(LocalDateTime.parse((String) currentPeriodStart.get("instant")));
+        if (stripeData.get("current_period_start") != null) {
+            subscription.setCurrentPeriodStart(epochToLocalDateTime(((Number) stripeData.get("current_period_start")).longValue()));
         }
-        if (currentPeriodEnd != null) {
-            subscription.setCurrentPeriodEnd(LocalDateTime.parse((String) currentPeriodEnd.get("instant")));
+        if (stripeData.get("current_period_end") != null) {
+            subscription.setCurrentPeriodEnd(epochToLocalDateTime(((Number) stripeData.get("current_period_end")).longValue()));
         }
 
         // Cancellation
         subscription.setCancelAtPeriodEnd((Boolean) stripeData.get("cancel_at_period_end"));
 
         if (stripeData.get("cancel_at") != null) {
-            subscription.setCancelAt(LocalDateTime.parse((String) ((Map<String, Object>) stripeData.get("cancel_at")).get("instant")));
+            subscription.setCancelAt(epochToLocalDateTime(((Number) stripeData.get("cancel_at")).longValue()));
         }
         if (stripeData.get("canceled_at") != null) {
-            subscription.setCanceledAt(LocalDateTime.parse((String) ((Map<String, Object>) stripeData.get("canceled_at")).get("instant")));
+            subscription.setCanceledAt(epochToLocalDateTime(((Number) stripeData.get("canceled_at")).longValue()));
         }
 
         // Trial
         if (stripeData.get("trial_start") != null) {
-            subscription.setTrialStart(LocalDateTime.parse((String) ((Map<String, Object>) stripeData.get("trial_start")).get("instant")));
+            subscription.setTrialStart(epochToLocalDateTime(((Number) stripeData.get("trial_start")).longValue()));
         }
         if (stripeData.get("trial_end") != null) {
-            subscription.setTrialEnd(LocalDateTime.parse((String) ((Map<String, Object>) stripeData.get("trial_end")).get("instant")));
+            subscription.setTrialEnd(epochToLocalDateTime(((Number) stripeData.get("trial_end")).longValue()));
         }
+    }
+
+    private LocalDateTime epochToLocalDateTime(Long epochSeconds) {
+        if (epochSeconds == null) return null;
+        return Instant.ofEpochSecond(epochSeconds).atOffset(ZoneOffset.UTC).toLocalDateTime();
     }
 }

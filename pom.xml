@@ -23,7 +23,6 @@
         <module>apps/04-invoice-payment-tracker</module>
         <module>apps/05-document-approval-workflow</module>
         <module>apps/03-ai-knowledge-base</module>
-        <module>apps/07-lightweight-issue-tracker</module>
         <module>apps/08-api-key-management-portal</module>
         <module>apps/10-okr-goal-tracker</module>
     </modules>

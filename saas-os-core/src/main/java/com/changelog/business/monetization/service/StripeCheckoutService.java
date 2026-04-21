@@ -36,8 +36,12 @@ public class StripeCheckoutService {
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                 .setSuccessUrl(successUrl + "?session_id={CHECKOUT_SESSION_ID}")
                 .setCancelUrl(cancelUrl)
-                .putMetadata("tenant_id", tenantId.toString())
-                .putMetadata("customer_id", customerId.toString())
+                .setSubscriptionData(
+                        SessionCreateParams.SubscriptionData.builder()
+                                .putMetadata("tenant_id", tenantId.toString())
+                                .putMetadata("customer_id", customerId.toString())
+                                .build()
+                )
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
                                 .setPrice(priceId)
