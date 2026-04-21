@@ -4,6 +4,7 @@ import com.changelog.okr.model.KeyResult;
 import com.changelog.okr.model.Objective;
 import com.changelog.okr.repository.KeyResultRepository;
 import com.changelog.okr.repository.ObjectiveRepository;
+import com.changelog.okr.repository.OkrCycleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.changelog.exception.EntityNotFoundException;
@@ -18,6 +19,7 @@ public class ObjectiveService {
 
     private final ObjectiveRepository objectiveRepository;
     private final KeyResultRepository keyResultRepository;
+    private final OkrCycleRepository cycleRepository;
 
     @Transactional(readOnly = true)
     public List<Objective> listByCycle(UUID cycleId, UUID tenantId) {
@@ -72,7 +74,13 @@ public class ObjectiveService {
         KeyResult existing = keyResultRepository.findById(krId)
                 .orElseThrow(() -> new EntityNotFoundException("Key result not found"));
 
-        if (!existing.getTenantId().equals(tenantId)) {
+        Objective objective = objectiveRepository.findById(existing.getObjectiveId())
+                .orElseThrow(() -> new EntityNotFoundException("Objective not found"));
+
+        var cycle = cycleRepository.findById(objective.getCycleId())
+                .orElseThrow(() -> new EntityNotFoundException("Cycle not found"));
+
+        if (!cycle.getTenantId().equals(tenantId)) {
             throw new EntityNotFoundException("Key result not found");
         }
 

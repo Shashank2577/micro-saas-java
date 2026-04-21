@@ -1,5 +1,6 @@
 package com.changelog.controller;
 
+import com.changelog.config.TenantResolver;
 import com.changelog.model.KbPage;
 import com.changelog.model.PageChunk;
 import com.changelog.repository.KbPageRepository;
@@ -7,6 +8,8 @@ import com.changelog.repository.PageChunkRepository;
 import com.changelog.service.EmbeddingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -22,13 +25,16 @@ public class SearchController {
     private final KbPageRepository pageRepository;
     private final PageChunkRepository pageChunkRepository;
     private final EmbeddingService embeddingService;
+    private final TenantResolver tenantResolver;
 
     @GetMapping
     public ResponseEntity<List<KbPage>> search(
-            @RequestHeader("X-Tenant-ID") UUID tenantId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam String q,
             @RequestParam(defaultValue = "keyword") String type) {
         
+        UUID tenantId = tenantResolver.getTenantId(jwt);
+
         if ("semantic".equalsIgnoreCase(type)) {
             float[] queryEmbedding = embeddingService.generateEmbedding(q);
             if (queryEmbedding != null) {

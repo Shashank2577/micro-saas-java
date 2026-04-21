@@ -1,9 +1,12 @@
 package com.changelog.controller;
 
+import com.changelog.config.TenantResolver;
 import com.changelog.model.OnboardingInstance;
 import com.changelog.service.OnboardingInstanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,33 +18,35 @@ import java.util.UUID;
 public class OnboardingInstanceController {
 
     private final OnboardingInstanceService instanceService;
+    private final TenantResolver tenantResolver;
 
     @GetMapping
-    public ResponseEntity<List<OnboardingInstance>> listInstances(@RequestHeader("X-Tenant-ID") UUID tenantId) {
-        return ResponseEntity.ok(instanceService.getActiveInstances(tenantId));
+    public ResponseEntity<List<OnboardingInstance>> listInstances(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(instanceService.getActiveInstances(tenantResolver.getTenantId(jwt)));
     }
 
     @PostMapping
     public ResponseEntity<OnboardingInstance> startOnboarding(
-            @RequestHeader("X-Tenant-ID") UUID tenantId,
-            @RequestHeader("X-User-ID") UUID userId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam UUID templateId,
             @RequestBody OnboardingInstance requestData) {
+        UUID tenantId = tenantResolver.getTenantId(jwt);
+        UUID userId = jwt != null && jwt.getSubject() != null ? UUID.fromString(jwt.getSubject()) : null;
         return ResponseEntity.ok(instanceService.startOnboarding(tenantId, templateId, requestData, userId));
     }
 
     @GetMapping("/{onboardingId}")
     public ResponseEntity<OnboardingInstance> getInstance(
-            @RequestHeader("X-Tenant-ID") UUID tenantId,
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID onboardingId) {
-        return ResponseEntity.ok(instanceService.getInstance(onboardingId, tenantId));
+        return ResponseEntity.ok(instanceService.getInstance(onboardingId, tenantResolver.getTenantId(jwt)));
     }
 
     @PostMapping("/{onboardingId}/cancel")
     public ResponseEntity<Void> cancelOnboarding(
-            @RequestHeader("X-Tenant-ID") UUID tenantId,
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID onboardingId) {
-        instanceService.cancelOnboarding(onboardingId, tenantId);
+        instanceService.cancelOnboarding(onboardingId, tenantResolver.getTenantId(jwt));
         return ResponseEntity.noContent().build();
     }
 }
