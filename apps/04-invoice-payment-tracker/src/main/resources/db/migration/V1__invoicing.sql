@@ -1,7 +1,7 @@
 -- app/V1__invoicing.sql
 CREATE TABLE clients (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id       UUID NOT NULL REFERENCES tenants(id),
+    tenant_id       UUID NOT NULL REFERENCES cc.tenants(id),
     name            TEXT NOT NULL,
     company         TEXT,
     email           TEXT NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE clients (
 
 CREATE TABLE invoices (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id       UUID NOT NULL REFERENCES tenants(id),
+    tenant_id       UUID NOT NULL REFERENCES cc.tenants(id),
     client_id       UUID NOT NULL REFERENCES clients(id),
     invoice_number  TEXT NOT NULL,
     status          TEXT NOT NULL DEFAULT 'draft',
@@ -54,7 +54,7 @@ CREATE TABLE payments (
     method          TEXT NOT NULL DEFAULT 'online',  -- online | manual
     reference       TEXT,            -- Stripe payment intent ID or note
     paid_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
-    recorded_by     UUID REFERENCES users(id)
+    recorded_by     UUID REFERENCES cc.users(id)
 );
 
 CREATE TABLE invoice_events (
@@ -66,7 +66,7 @@ CREATE TABLE invoice_events (
 );
 
 CREATE TABLE invoice_settings (
-    tenant_id       UUID PRIMARY KEY REFERENCES tenants(id),
+    tenant_id       UUID PRIMARY KEY REFERENCES cc.tenants(id),
     next_number     INT NOT NULL DEFAULT 1,
     number_prefix   TEXT NOT NULL DEFAULT 'INV-',
     logo_key        TEXT,           -- MinIO key for logo

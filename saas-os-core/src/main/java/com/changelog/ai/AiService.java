@@ -1,5 +1,7 @@
 package com.changelog.ai;
 
+import com.changelog.dto.AiDuplicateCheckResponse;
+import com.changelog.dto.AiPriorityResponse;
 import com.changelog.dto.AiRewriteResponse;
 import com.changelog.dto.AiTitleResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,6 +50,45 @@ public class AiService {
         String response = callLlm(prompt);
         List<String> titles = parseTitlesFromResponse(response);
         return new AiTitleResponse(titles);
+    }
+
+    public AiDuplicateCheckResponse checkDuplicateIssue(String title, String description, List<String> existingTitles) {
+        String existing = String.join("\n", existingTitles);
+        String prompt = String.format(
+                "Check if the following issue is a duplicate of any in the list. " +
+                "Return JSON: {\"duplicate\": true/false, \"similarIssueTitle\": \"...\", \"confidence\": 0.0-1.0}\n\n" +
+                "New issue: %s - %s\n\nExisting issues:\n%s",
+                title, description, existing
+        );
+        try {
+            String response = callLlm(prompt);
+            var node = objectMapper.readTree(response);
+            return new AiDuplicateCheckResponse(
+                    node.path("duplicate").asBoolean(false),
+                    node.path("similarIssueTitle").asText(""),
+                    node.path("confidence").asDouble(0.0)
+            );
+        } catch (Exception e) {
+            return new AiDuplicateCheckResponse(false, "", 0.0);
+        }
+    }
+
+    public AiPriorityResponse suggestIssuePriority(String title, String description) {
+        String prompt = String.format(
+                "Suggest priority for this issue. Return JSON: {\"priority\": \"low|medium|high|critical\", \"reasoning\": \"...\"}\n\n" +
+                "Issue: %s - %s",
+                title, description
+        );
+        try {
+            String response = callLlm(prompt);
+            var node = objectMapper.readTree(response);
+            return new AiPriorityResponse(
+                    node.path("priority").asText("medium"),
+                    node.path("reasoning").asText("")
+            );
+        } catch (Exception e) {
+            return new AiPriorityResponse("medium", "Could not determine priority");
+        }
     }
 
     private String callLlm(String prompt) {
