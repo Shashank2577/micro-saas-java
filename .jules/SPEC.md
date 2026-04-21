@@ -1,28 +1,27 @@
-# SPEC - WO-005: Fix App 06 AI Onboarding — Wire to Real LLM
+# WO-004: Implement Real AI in App 03 — Knowledge Base Vector Search + Q&A
 
-## Problem Definition
-The `AiOnboardingService` in the employee onboarding application (App 06) uses hardcoded stubs for generating onboarding plans and rewriting task descriptions. These need to be integrated with the real LLM gateway via `AiService` from the `saas-os-core` module.
+## Scope
+1. Introduce embedding generation capabilities to `saas-os-core` and App 03.
+2. Automate text chunking and embedding storage on `KbPage` creation and updates.
+3. Integrate real vector similarity search using `pgvector`.
+4. Replace mocked RAG pipeline in `AiKnowledgeService` with actual OpenAI-compatible Gateway calls.
+5. Upgrade `SearchController` to respect `type=semantic` and use similarity search.
+6. Implement graceful degradation to handle AI gateway unreachability.
 
-## Proposed Changes
-
-### saas-os-core
-- **AiService.java**: Add a public method `callLlmRaw(String prompt)` that wraps the existing private `callLlm(String prompt)` method. This allows other modules to use the LLM for custom prompts and raw string responses.
-
-### apps/06-employee-onboarding-orchestrator
-- **AiOnboardingService.java**:
-    - Inject `AiService`.
-    - Update `generatePlan()` to use `AiService.callLlmRaw()` with a specific prompt to generate 8-12 tasks in JSON format.
-    - Add `parseTasksFromJson()` to handle LLM response parsing, including markdown fence stripping and JSON mapping to `TemplateTask`.
-    - Add `defaultTasks()` as a fallback when AI generation fails.
-    - Update `rewriteDescriptions()` to use `AiService.callLlmRaw()` for each task description.
-    - Ensure graceful degradation: use fallback or keep original data if LLM calls fail.
-    - Remove the unused `createTask()` helper.
-    - Add required imports (`ObjectMapper`, `JsonNode`, `ArrayList`, `List`, `AiService`).
+## Implementation Details
+1. **saas-os-core**:
+   - `EmbeddingRequest.java` & `EmbeddingResponse.java` for LiteLLM schema.
+   - Extend `LiteLlmApi` with `/embeddings`.
+   - Expose `callLlmRaw(String prompt)` in `AiService` to run custom RAG prompts.
+2. **App 03**:
+   - `EmbeddingService`: handles AI gateway communication, handles errors gracefully.
+   - `KbPageService`: `indexPage(KbPage)` method invoked on create/update to clear old chunks, split text into 500-word chunks (50-word overlap), generate embeddings, and save them.
+   - `AiKnowledgeService.askQuestion()`: generate embedding for question -> retrieve top 5 chunks -> prompt `AiService.callLlmRaw` -> save `AiQaSession`.
+   - `SearchController`: for `semantic` search type, get query embedding -> fetch similar chunks -> extract distinct `KbPage`s. If AI is down, fallback to `keyword`.
 
 ## Acceptance Criteria
-- `AiService.callLlmRaw` exists and is public.
-- `generatePlan` in App 06 returns AI-generated tasks.
-- `rewriteDescriptions` in App 06 updates descriptions using the LLM.
-- Graceful degradation works for both methods.
-- `createTask` is removed.
-- Successful build of both modules.
+- Pages auto-chunk and embed on save.
+- `POST /api/v1/ai/ask` uses vector search + real LLM answer.
+- `GET /api/v1/search?type=semantic` searches by meaning.
+- Unreachable Gateway leads to graceful fallback (keyword search / error note in AI answer) without 500s.
+- Monorepo builds pass.

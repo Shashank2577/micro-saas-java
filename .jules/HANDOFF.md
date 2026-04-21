@@ -1,18 +1,14 @@
-# HANDOFF - WO-005: Fix App 06 AI Onboarding — Wire to Real LLM
+# WO-004: Implement Real AI in App 03
 
 ## Summary
-The AI onboarding functionality in App 06 has been wired to the real LiteLLM gateway. Stubs have been replaced with actual LLM calls while maintaining robust fallback mechanisms.
+The mock AI in App 03 has been replaced with a real RAG (Retrieval-Augmented Generation) pipeline.
 
-## Key Changes
-- **saas-os-core**: Added public `callLlmRaw` method to `AiService` to allow raw string interaction with the LLM.
-- **App 06 (Onboarding)**:
-    - Integrated `AiService` into `AiOnboardingService`.
-    - `generatePlan` now uses the LLM to generate 8-12 tasks based on job title and department.
-    - `rewriteDescriptions` now uses the LLM to polish each task's description.
-    - Implemented JSON parsing for LLM responses with markdown fence stripping.
-    - Added fallback logic: `defaultTasks` for plan generation and keeping original description for rewriting on failure.
-    - Removed unused `createTask` helper.
-- **Testing**: Added `AiOnboardingServiceTest` with 100% coverage of the new logic, including error scenarios.
+- `saas-os-core` was extended with `EmbeddingRequest`, `EmbeddingResponse`, an `@POST("embeddings")` Retrofit route in `LiteLlmApi`, and a public `callLlmRaw` method in `AiService`.
+- `EmbeddingService` was built in App 03 to request text embeddings from the LiteLLM gateway, gracefully returning `null` on failure.
+- `KbPageService` was updated to chunk `KbPage` content into ~500 words with a 50-word overlap, embed those chunks, and save them as `PageChunk` entities containing `pgvector` data.
+- `SearchController` handles `type=semantic` queries, finding top chunks and extracting unique associated `KbPage` results, falling back to keyword search if AI is unreachable.
+- `AiKnowledgeService` resolves user questions using top-5 relevant semantic chunks, assembling a context-rich prompt for the LLM to process. Fallbacks to keyword context are invoked if embeddings fail.
 
-## Verification
-- Run `mvn install -pl saas-os-core` then `mvn test -pl apps/06-employee-onboarding-orchestrator` to verify.
+## Notes
+- Build succeeds.
+- Graceful degradation ensures the application functions smoothly even if the external LLM is offline.

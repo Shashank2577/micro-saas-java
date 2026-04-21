@@ -1,26 +1,31 @@
-# PLAN - WO-005: Fix App 06 AI Onboarding — Wire to Real LLM
+1. **Core Changes (saas-os-core)**
+   - Add `EmbeddingRequest`, `EmbeddingResponse` to `com.changelog.ai`.
+   - Update `LiteLlmApi` to include `@POST("embeddings")`.
+   - Add public `callLlmRaw(String prompt)` to `AiService`.
+   - Rebuild core module.
 
-## Steps
+2. **EmbeddingService (App 03)**
+   - Create `EmbeddingService` in `apps/03-ai-knowledge-base/src/main/java/com/changelog/service/EmbeddingService.java`.
+   - Implement `generateEmbedding(String text)` with graceful error handling (returns null on error).
+   - Implement `toPGvector(float[])`.
 
-### 1. Modify `saas-os-core`
-- Edit `saas-os-core/src/main/java/com/changelog/ai/AiService.java` to add `callLlmRaw(String prompt)`.
-- Rebuild `saas-os-core` using `mvn install -pl saas-os-core`.
+3. **KbPageService (App 03)**
+   - Add `indexPage(KbPage page)` method in `KbPageService`.
+   - Implement text chunking logic (500 words, 50 word overlap).
+   - Call `indexPage` at the end of `createPage` and `updatePage`.
 
-### 2. Modify `apps/06-employee-onboarding-orchestrator`
-- Edit `apps/06-employee-onboarding-orchestrator/src/main/java/com/changelog/service/AiOnboardingService.java`.
-    - Add `AiService` field and update imports.
-    - Implement `generatePlan()` with real LLM call and fallback logic.
-    - Implement `parseTasksFromJson()` helper.
-    - Implement `defaultTasks()` fallback helper.
-    - Implement `rewriteDescriptions()` with real LLM call.
-    - Remove `createTask()` helper.
-- Verify compilation of App 06 using `mvn compile -pl apps/06-employee-onboarding-orchestrator`.
+4. **PageChunkRepository Check (App 03)**
+   - Verify/Fix the existing `findSimilarChunks` native query. Use `Arrays.toString(floats).replace(" ", "")` to match the exact requirement, though the provided hint says `Arrays.toString(floats).replace(", ", ",")` might be better or `[0.1, 0.2]`. The repository query uses `CAST(:embedding AS vector)`.
 
-### 3. Verification
-- Run tests for App 06 if available.
-- Check build of both modules.
+5. **AiKnowledgeService (App 03)**
+   - Update `askQuestion()` to use `EmbeddingService` for question.
+   - Use `findSimilarChunks`.
+   - If AI gateway fails (embedding is null), fallback.
+   - Construct prompt with context. Call `AiService.callLlmRaw()`. Parse and save answer.
 
-### 4. Documentation
-- Create `IMPLEMENTATION_LOG.md`.
-- Create `VERIFICATION_REPORT.md`.
-- Create `HANDOFF.md`.
+6. **SearchController (App 03)**
+   - Update `search()` endpoint to handle `type=semantic` logic.
+   - Distinct map over chunks to return relevant `KbPage`s. If embedding fails, fallback to `type=keyword`.
+
+7. **Verification**
+   - Run tests for `saas-os-core` and App 03. Ensure no regressions.

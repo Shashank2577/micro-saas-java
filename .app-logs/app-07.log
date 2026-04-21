@@ -1,0 +1,54 @@
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by lombok.permit.Permit
+WARNING: Please consider reporting this to the maintainers of class lombok.permit.Permit
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-04-21T07:50:20.755+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] c.c.i.IssueTrackerApplication            : Starting IssueTrackerApplication using Java 25.0.2 with PID 84973 (/Users/shashanksaxena/Documents/Personal/Code/micro-saas-applications-java/apps/07-lightweight-issue-tracker/target/classes started by shashanksaxena in /Users/shashanksaxena/Documents/Personal/Code/micro-saas-applications-java/apps/07-lightweight-issue-tracker)
+2026-04-21T07:50:20.756+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] c.c.i.IssueTrackerApplication            : No active profile set, falling back to 1 default profile: "default"
+2026-04-21T07:50:21.166+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-21T07:50:21.200+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 31 ms. Found 5 JPA repository interfaces.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.apache.tomcat.jni.Library in an unnamed module (file:/Users/shashanksaxena/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.31/tomcat-embed-core-10.1.31.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+2026-04-21T07:50:21.569+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8087 (http)
+2026-04-21T07:50:21.576+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-21T07:50:21.576+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-04-21T07:50:21.605+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-21T07:50:21.606+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 812 ms
+2026-04-21T07:50:21.768+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-04-21T07:50:21.872+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@27ab206
+2026-04-21T07:50:21.873+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-04-21T07:50:21.890+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5433/changelog (PostgreSQL 16.13)
+2026-04-21T07:50:21.914+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history_07" does not exist yet
+2026-04-21T07:50:21.916+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.013s)
+2026-04-21T07:50:21.932+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history_07" with baseline ...
+2026-04-21T07:50:21.956+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.f.core.internal.command.DbBaseline     : Successfully baselined schema with version: 0
+2026-04-21T07:50:21.986+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 0
+2026-04-21T07:50:21.993+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - issues"
+2026-04-21T07:50:21.997+05:30  WARN 84973 --- [lightweight-issue-tracker] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: extension "vector" already exists, skipping (SQL State: 42710 - Error Code: 0)
+2026-04-21T07:50:22.059+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 1 migration to schema "public", now at version v1 (execution time 00:00.056s)
+2026-04-21T07:50:22.099+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-21T07:50:22.122+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-04-21T07:50:22.137+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-21T07:50:22.269+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-21T07:50:22.296+05:30  WARN 84973 --- [lightweight-issue-tracker] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-21T07:50:22.828+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-21T07:50:22.861+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-21T07:50:23.008+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-21T07:50:23.486+05:30  WARN 84973 --- [lightweight-issue-tracker] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-21T07:50:23.755+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8087 (http) with context path '/'
+2026-04-21T07:50:23.760+05:30  INFO 84973 --- [lightweight-issue-tracker] [           main] c.c.i.IssueTrackerApplication            : Started IssueTrackerApplication in 3.231 seconds (process running for 3.426)
+2026-04-21T07:51:51.189+05:30  INFO 84973 --- [lightweight-issue-tracker] [nio-8087-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21T07:51:51.190+05:30  INFO 84973 --- [lightweight-issue-tracker] [nio-8087-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-21T07:51:51.192+05:30  INFO 84973 --- [lightweight-issue-tracker] [nio-8087-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
