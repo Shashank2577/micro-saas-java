@@ -1,0 +1,53 @@
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been called by lombok.permit.Permit
+WARNING: Please consider reporting this to the maintainers of class lombok.permit.Permit
+WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-04-21T07:45:17.263+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] c.c.EmployeeOnboardingApplication        : Starting EmployeeOnboardingApplication using Java 25.0.2 with PID 75777 (/Users/shashanksaxena/Documents/Personal/Code/micro-saas-applications-java/apps/06-employee-onboarding-orchestrator/target/classes started by shashanksaxena in /Users/shashanksaxena/Documents/Personal/Code/micro-saas-applications-java/apps/06-employee-onboarding-orchestrator)
+2026-04-21T07:45:17.265+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] c.c.EmployeeOnboardingApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-04-21T07:45:18.237+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-21T07:45:18.319+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 78 ms. Found 17 JPA repository interfaces.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.apache.tomcat.jni.Library in an unnamed module (file:/Users/shashanksaxena/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.31/tomcat-embed-core-10.1.31.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+2026-04-21T07:45:19.154+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8086 (http)
+2026-04-21T07:45:19.176+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-21T07:45:19.176+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-04-21T07:45:19.215+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-21T07:45:19.215+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1858 ms
+2026-04-21T07:45:19.385+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-04-21T07:45:19.650+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6f1fa1d0
+2026-04-21T07:45:19.651+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-04-21T07:45:19.686+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5433/changelog (PostgreSQL 16.13)
+2026-04-21T07:45:19.806+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history_06" does not exist yet
+2026-04-21T07:45:19.815+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.055s)
+2026-04-21T07:45:19.888+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history_06" with baseline ...
+2026-04-21T07:45:19.990+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.f.core.internal.command.DbBaseline     : Successfully baselined schema with version: 0
+2026-04-21T07:45:20.016+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 0
+2026-04-21T07:45:20.028+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - onboarding"
+2026-04-21T07:45:20.124+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 1 migration to schema "public", now at version v1 (execution time 00:00.076s)
+2026-04-21T07:45:20.198+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-21T07:45:20.228+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-04-21T07:45:20.246+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-21T07:45:20.388+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-21T07:45:20.414+05:30  WARN 75777 --- [employee-onboarding-orchestrator] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-21T07:45:21.266+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-21T07:45:21.308+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-21T07:45:21.557+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-21T07:45:22.106+05:30  WARN 75777 --- [employee-onboarding-orchestrator] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-21T07:45:22.397+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8086 (http) with context path '/'
+2026-04-21T07:45:22.402+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [           main] c.c.EmployeeOnboardingApplication        : Started EmployeeOnboardingApplication in 5.689 seconds (process running for 6.086)
+2026-04-21T07:51:51.072+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [nio-8086-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21T07:51:51.074+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [nio-8086-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-21T07:51:51.081+05:30  INFO 75777 --- [employee-onboarding-orchestrator] [nio-8086-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 7 ms

@@ -82,24 +82,12 @@ public class AiService {
         return parseResponse(response, AiPriorityResponse.class);
     }
 
-    private <T> T parseResponse(String response, Class<T> clazz) {
-        String cleaned = response.trim();
-        if (cleaned.startsWith("```")) {
-            int firstNewline = cleaned.indexOf('\n');
-            if (firstNewline > 0) {
-                cleaned = cleaned.substring(firstNewline + 1);
-            }
-        }
-        if (cleaned.endsWith("```")) {
-            cleaned = cleaned.substring(0, cleaned.length() - 3);
-        }
-        cleaned = cleaned.trim();
-
-        try {
-            return objectMapper.readValue(cleaned, clazz);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to parse LLM response: " + cleaned, e);
-        }
+    /**
+     * Exposes the private LLM call for services in other modules.
+     * Returns the raw string from the model. Throws RuntimeException on failure.
+     */
+    public String callLlmRaw(String prompt) {
+        return callLlm(prompt);
     }
 
     private String callLlm(String prompt) {
@@ -122,6 +110,26 @@ public class AiService {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("LLM call failed: " + e.getMessage(), e);
+        }
+    }
+
+    private <T> T parseResponse(String response, Class<T> clazz) {
+        String cleaned = response.trim();
+        if (cleaned.startsWith("```")) {
+            int firstNewline = cleaned.indexOf('\n');
+            if (firstNewline > 0) {
+                cleaned = cleaned.substring(firstNewline + 1);
+            }
+        }
+        if (cleaned.endsWith("```")) {
+            cleaned = cleaned.substring(0, cleaned.length() - 3);
+        }
+        cleaned = cleaned.trim();
+
+        try {
+            return objectMapper.readValue(cleaned, clazz);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse LLM response: " + cleaned, e);
         }
     }
 

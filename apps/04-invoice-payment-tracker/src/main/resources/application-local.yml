@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/saas_os
+    username: postgres
+    password: postgres
+
+changelog:
+  security:
+    tenant-resolver: local # Bypasses Keycloak
+  storage:
+    minio:
+      url: http://localhost:9000
+      access-key: minioadmin
+      secret-key: minioadmin
+      bucket: invoices
+
+logging:
+  level:
+    com.changelog: DEBUG

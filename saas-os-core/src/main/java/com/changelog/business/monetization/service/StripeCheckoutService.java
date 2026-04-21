@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StripeCheckoutService {
 
-    @Value("${stripe.secret-key}")
+    @Value("${stripe.secret-key:sk_test_placeholder}")
     private String stripeSecretKey;
 
     /**

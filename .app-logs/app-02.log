@@ -1,0 +1,45 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-04-21T07:44:37.527+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] c.changelog.FeedbackRoadmapApplication   : Starting FeedbackRoadmapApplication using Java 25.0.2 with PID 74540 (/Users/shashanksaxena/Documents/Personal/Code/micro-saas-applications-java/apps/02-team-feedback-roadmap/target/classes started by shashanksaxena in /Users/shashanksaxena/Documents/Personal/Code/micro-saas-applications-java/apps/02-team-feedback-roadmap)
+2026-04-21T07:44:37.528+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] c.changelog.FeedbackRoadmapApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-04-21T07:44:37.843+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-21T07:44:37.884+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 37 ms. Found 18 JPA repository interfaces.
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by org.apache.tomcat.jni.Library in an unnamed module (file:/Users/shashanksaxena/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.31/tomcat-embed-core-10.1.31.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+2026-04-21T07:44:38.155+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8082 (http)
+2026-04-21T07:44:38.162+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-21T07:44:38.162+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-04-21T07:44:38.192+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-21T07:44:38.192+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 639 ms
+2026-04-21T07:44:38.305+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-04-21T07:44:38.396+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@c48b543
+2026-04-21T07:44:38.397+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-04-21T07:44:38.411+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5433/changelog (PostgreSQL 16.13)
+2026-04-21T07:44:38.444+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 2 migrations (execution time 00:00.021s)
+2026-04-21T07:44:38.474+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 1
+2026-04-21T07:44:38.477+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-04-21T07:44:38.522+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-21T07:44:38.546+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-04-21T07:44:38.558+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-21T07:44:38.680+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-21T07:44:38.703+05:30  WARN 74540 --- [team-feedback-roadmap] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-21T07:44:39.315+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-21T07:44:39.350+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-21T07:44:39.535+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-21T07:44:40.074+05:30  WARN 74540 --- [team-feedback-roadmap] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-21T07:44:40.348+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8082 (http) with context path '/'
+2026-04-21T07:44:40.353+05:30  INFO 74540 --- [team-feedback-roadmap] [           main] c.changelog.FeedbackRoadmapApplication   : Started FeedbackRoadmapApplication in 2.994 seconds (process running for 3.138)
+2026-04-21T07:51:45.252+05:30  INFO 74540 --- [team-feedback-roadmap] [nio-8082-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-21T07:51:45.252+05:30  INFO 74540 --- [team-feedback-roadmap] [nio-8082-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-21T07:51:45.256+05:30  INFO 74540 --- [team-feedback-roadmap] [nio-8082-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms

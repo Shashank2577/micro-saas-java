@@ -7,4 +7,7 @@ import retrofit2.http.POST;
 public interface LiteLlmApi {
     @POST("/chat/completions")
     Call<ChatCompletionResponse> chatCompletions(@Body ChatCompletionRequest request);
+
+    @POST("/embeddings")
+    Call<EmbeddingResponse> createEmbedding(@Body EmbeddingRequest request);
 }

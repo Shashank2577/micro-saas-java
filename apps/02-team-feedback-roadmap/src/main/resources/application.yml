@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: team-feedback-roadmap
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/changelog}
+    username: ${DATABASE_USERNAME:changelog}
+    password: ${DATABASE_PASSWORD:changelog}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    table: flyway_schema_history_02
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/changelog}
+          jwk-set-uri: ${KEYCLOAK_JWK_URI:http://localhost:8080/realms/changelog/protocol/openid-connect/certs}
+
+server:
+  port: ${SERVER_PORT:8082}
+  error:
+    include-message: always
+
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}

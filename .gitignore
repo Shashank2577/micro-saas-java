@@ -1,0 +1,4 @@
+target/
+.idea/
+*.iml
+saas-os-core/target/
