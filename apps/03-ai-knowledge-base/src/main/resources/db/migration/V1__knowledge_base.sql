@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TABLE spaces (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id   UUID NOT NULL REFERENCES cc_tenants(id),
+    tenant_id   UUID NOT NULL REFERENCES cc.tenants(id),
     name        TEXT NOT NULL,
     slug        TEXT NOT NULL,
     description TEXT,
@@ -14,14 +14,14 @@ CREATE TABLE spaces (
 
 CREATE TABLE kb_pages (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id       UUID NOT NULL REFERENCES cc_tenants(id),
+    tenant_id       UUID NOT NULL REFERENCES cc.tenants(id),
     space_id        UUID NOT NULL REFERENCES spaces(id) ON DELETE CASCADE,
     parent_page_id  UUID REFERENCES kb_pages(id),
     title           TEXT NOT NULL,
     content         TEXT NOT NULL DEFAULT '',    -- markdown
     content_tsv     tsvector GENERATED ALWAYS AS (to_tsvector('english', coalesce(title,'') || ' ' || coalesce(content,''))) STORED,
     status          TEXT NOT NULL DEFAULT 'draft', -- draft | published
-    owner_id        UUID REFERENCES cc_users(id),
+    owner_id        UUID REFERENCES cc.users(id),
     position        INT NOT NULL DEFAULT 0,
     tags            TEXT[] NOT NULL DEFAULT '{}',
     last_reviewed_at TIMESTAMPTZ,
@@ -37,7 +37,7 @@ CREATE TABLE page_versions (
     version_num INT NOT NULL,
     content     TEXT NOT NULL,
     title       TEXT NOT NULL,
-    edited_by   UUID REFERENCES cc_users(id),
+    edited_by   UUID REFERENCES cc.users(id),
     edited_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -54,8 +54,8 @@ CREATE INDEX page_chunks_embedding_idx ON page_chunks USING ivfflat (embedding v
 
 CREATE TABLE ai_qa_sessions (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id   UUID NOT NULL REFERENCES cc_tenants(id),
-    user_id     UUID REFERENCES cc_users(id),
+    tenant_id   UUID NOT NULL REFERENCES cc.tenants(id),
+    user_id     UUID REFERENCES cc.users(id),
     question    TEXT NOT NULL,
     answer      TEXT,
     citations   JSONB,           -- [{page_id, title, excerpt, url}]
@@ -65,7 +65,7 @@ CREATE TABLE ai_qa_sessions (
 
 CREATE TABLE search_query_log (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id   UUID NOT NULL REFERENCES cc_tenants(id),
+    tenant_id   UUID NOT NULL REFERENCES cc.tenants(id),
     query       TEXT NOT NULL,
     result_count INT NOT NULL,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
