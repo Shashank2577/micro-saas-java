@@ -1,3 +1,7 @@
 target/
 .idea/
 *.iml
+.omc/
+.jules/
+*.log
+.DS_Store
