@@ -3,10 +3,14 @@ package com.changelog.business.monetization.controller;
 import com.changelog.business.monetization.dto.StripeWebhookEvent;
 import com.changelog.business.monetization.service.StripeWebhookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stripe.exception.SignatureVerificationException;
+import com.stripe.net.Webhook;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -23,6 +27,9 @@ public class StripeWebhookController {
     private final StripeWebhookService webhookService;
     private final ObjectMapper objectMapper;
 
+    @Value("${stripe.webhook-secret:}")
+    private String webhookSecret;
+
     /**
      * Handle Stripe webhook events
      * POST /api/v1/webhooks/stripe
@@ -34,8 +41,8 @@ public class StripeWebhookController {
             HttpServletRequest request) {
 
         try {
-            // TODO: Verify Stripe signature
-            // verifyStripeSignature(payload, signature);
+            // Verify Stripe signature
+            verifyStripeSignature(payload, signature);
 
             // Parse webhook event
             StripeWebhookEvent event = objectMapper.readValue(payload, StripeWebhookEvent.class);
@@ -45,6 +52,9 @@ public class StripeWebhookController {
 
             return ResponseEntity.ok().build();
 
+        } catch (SignatureVerificationException e) {
+            log.error("Stripe signature verification failed", e);
+            return ResponseEntity.status(401).build();
         } catch (IOException e) {
             log.error("Error parsing webhook payload", e);
             return ResponseEntity.badRequest().build();
@@ -67,16 +77,12 @@ public class StripeWebhookController {
 
     /**
      * Verify Stripe webhook signature
-     * TODO: Implement proper signature verification
      */
-    private void verifyStripeSignature(String payload, String signature) throws SignatureException {
-        String[] signatureParts = signature.split(",");
-        if (signatureParts.length != 2) {
-            throw new SignatureException("Invalid signature format");
+    private void verifyStripeSignature(String payload, String signature) throws SignatureVerificationException {
+        if (StringUtils.hasText(webhookSecret)) {
+            Webhook.constructEvent(payload, signature, webhookSecret);
+        } else {
+            log.warn("Stripe webhook secret is not configured. Skipping signature verification (LOCAL ONLY).");
         }
-
-        // TODO: Implement actual signature verification
-        // This requires the Stripe webhook secret
-        log.warn("Stripe signature verification not implemented yet");
     }
 }
