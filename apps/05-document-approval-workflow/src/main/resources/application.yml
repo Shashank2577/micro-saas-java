@@ -18,6 +18,9 @@ spring:
 
   flyway:
     enabled: true
+    table: flyway_schema_history_05
+    baseline-on-migrate: true
+    baseline-version: 0
     locations: classpath:db/migration
 
   security:

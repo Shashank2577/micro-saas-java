@@ -9,7 +9,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 @Configuration
 public class LiteLlmClient {
 
-    @Value("${ai.gateway-url}")
+    @Value("${ai.gateway-url:http://localhost:4000}")
     private String gatewayUrl;
 
     @Bean

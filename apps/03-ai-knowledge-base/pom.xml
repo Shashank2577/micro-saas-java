@@ -14,7 +14,7 @@
 
     <artifactId>ai-knowledge-base</artifactId>
     <name>AI Knowledge Base App</name>
-    <description>AI-powered knowledge base with semantic search and Q&A</description>
+    <description>AI-powered knowledge base with semantic search and Q&amp;A</description>
 
     <dependencies>
         <!-- Shared Core -->
