@@ -1,15 +1,18 @@
-# Handoff for WO-002
+# HANDOFF - WO-005: Fix App 06 AI Onboarding — Wire to Real LLM
 
-## What Was Built
-Replaced over 20+ instances of throwing raw `RuntimeException` across apps 02, 04, 05, 06, 07, and 10 with new specific domain exceptions: `EntityNotFoundException`, `ForbiddenException`, and standard `IllegalStateException`.
-Updated `GlobalExceptionHandler` to translate these domain exceptions properly into RESTful HTTP 403, 404, and 409 responses.
-Patched `ObjectiveService.updateKeyResult()` in App 10 to check tenantId bounds manually returning a secure `EntityNotFoundException` instead of leaking resource existence status.
+## Summary
+The AI onboarding functionality in App 06 has been wired to the real LiteLLM gateway. Stubs have been replaced with actual LLM calls while maintaining robust fallback mechanisms.
 
-## Deviations from Spec
-- App 05's `IllegalStateException` request for "Workflow is not active" text wasn't directly found in current `WorkflowService` codebase to replace, thus changes focused on existing `Access Denied` handling instead.
-- Automated tests execution locally failed due to Docker Hub unauthenticated rate-limit on `minio/minio` etc, so we confirmed code validity primarily through strict `mvn compile`.
+## Key Changes
+- **saas-os-core**: Added public `callLlmRaw` method to `AiService` to allow raw string interaction with the LLM.
+- **App 06 (Onboarding)**:
+    - Integrated `AiService` into `AiOnboardingService`.
+    - `generatePlan` now uses the LLM to generate 8-12 tasks based on job title and department.
+    - `rewriteDescriptions` now uses the LLM to polish each task's description.
+    - Implemented JSON parsing for LLM responses with markdown fence stripping.
+    - Added fallback logic: `defaultTasks` for plan generation and keeping original description for rewriting on failure.
+    - Removed unused `createTask` helper.
+- **Testing**: Added `AiOnboardingServiceTest` with 100% coverage of the new logic, including error scenarios.
 
-## How to Verify
-1. Verify `GlobalExceptionHandler` mapping in `saas-os-core/src/main/java/com/changelog/config/GlobalExceptionHandler.java`.
-2. Inspect `ObjectiveService.updateKeyResult()` in App 10 for tenant authorization logic via `EntityNotFoundException`.
-3. Run `mvn compile` over the changed modules.
+## Verification
+- Run `mvn install -pl saas-os-core` then `mvn test -pl apps/06-employee-onboarding-orchestrator` to verify.

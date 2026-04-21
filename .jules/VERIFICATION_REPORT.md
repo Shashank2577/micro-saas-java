@@ -1,26 +1,22 @@
-# Verification Report for WO-002
+# VERIFICATION REPORT - WO-005
 
-## Goal
-Replace generic `RuntimeException` with specific domain exceptions (`EntityNotFoundException`, `ForbiddenException`, `IllegalStateException`) across multiple applications and map them correctly in `GlobalExceptionHandler`.
+## Changes Verified
+- `AiService.callLlmRaw(String prompt)` added to `saas-os-core`.
+- `AiOnboardingService` in App 06 updated with real LLM integration.
+- `AiOnboardingService` fallback logic implemented for both generation and rewriting.
+- `createTask` helper removed.
+- Compilation and unit tests passed.
 
-## Execution Results
-1. **saas-os-core**:
-    - Created `EntityNotFoundException` and `ForbiddenException`.
-    - Updated `GlobalExceptionHandler` mapping:
-        - `ForbiddenException` -> `403 FORBIDDEN`
-        - `IllegalStateException` -> `409 CONFLICT`
-2. **App 02**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`.
-3. **App 04**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`.
-4. **App 05**: Replaced `RuntimeException("Access Denied")` with `ForbiddenException` and used `EntityNotFoundException` for missing entities.
-5. **App 06**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`.
-6. **App 07**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`.
-7. **App 10**: Replaced `.orElseThrow(() -> new RuntimeException(...))` with `EntityNotFoundException`. Corrected tenant ownership leak in `ObjectiveService.updateKeyResult()`.
+## Test Results
+- **Module `saas-os-core`**: Built successfully.
+- **Module `apps/06-employee-onboarding-orchestrator`**:
+    - Compilation: Success.
+    - Unit Tests: `AiOnboardingServiceTest` passed (4 tests).
+        - `generatePlan_Success`: Passed.
+        - `generatePlan_Fallback`: Passed.
+        - `rewriteDescriptions_Success`: Passed.
+        - `rewriteDescriptions_Fallback`: Passed.
 
-## Compile Check
-```
-mvn compile -pl saas-os-core,apps/02-team-feedback-roadmap,apps/04-invoice-payment-tracker,apps/05-document-approval-workflow,apps/06-employee-onboarding-orchestrator,apps/07-lightweight-issue-tracker,apps/10-okr-goal-tracker
-```
-**Result**: BUILD SUCCESS. All modifications correctly type-checked.
-
-## Test Check
-Tests run could not fully initialize integration setups locally due to a Docker rate-limit constraint preventing Testcontainers / infrastructure from pulling required Postgres/Keycloak images. Logic validity heavily relies on successful compilation and careful code replacement rules adherence.
+## Manual Verification
+- Verified that `AiOnboardingService` correctly handles JSON parsing and markdown fence removal.
+- Verified that fallback logic kicks in when `AiService` throws an exception.
