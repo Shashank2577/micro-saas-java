@@ -49,7 +49,7 @@ CREATE TABLE key_usage_events (
     method          TEXT NOT NULL,
     status_code     INT NOT NULL,
     response_ms     INT,
-    ip_address      INET,
+    ip_address      TEXT,
     occurred_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

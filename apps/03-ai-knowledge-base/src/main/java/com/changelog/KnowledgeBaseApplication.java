@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EntityScan(basePackages = {"com.changelog.model"})
-@EnableJpaRepositories(basePackages = {"com.changelog.repository"})
+@EntityScan(basePackages = "com.changelog")
+@EnableJpaRepositories(basePackages = "com.changelog")
 public class KnowledgeBaseApplication {
 
     public static void main(String[] args) {
