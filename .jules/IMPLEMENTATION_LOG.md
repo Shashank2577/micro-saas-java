@@ -1,7 +1,5 @@
-# Implementation Log
+# IMPLEMENTATION LOG - WO-TEST-03
 
-1. **pom.xml modifications**: Added `<dependency>` block for `spring-boot-starter-test` with `test` scope to ensure we have JUnit 5, Mockito and AssertJ available for testing.
-2. **`JwtTenantResolverTest`**: Written to verify extraction of `tenant_id` from a `Jwt` token and handling of missing or invalid claims via exceptions. Had to adjust exceptions thrown inside `JwtTenantResolver` (like `IllegalArgumentException` vs `NullPointerException` depending on internal parser behaviors).
-3. **`GlobalExceptionHandlerTest`**: Created straightforward unit test matching individual exception configurations (EntityNotFound, IllegalArgument, Forbidden, IllegalState, generic Exception) and asserting 4xx/5xx code alongside HTTP body structures (`ErrorResponse`).
-4. **`LocalTenantResolverTest`**: Added basic evaluation of deterministic standard returning `DEV_TENANT_ID`.
-5. **`AiServiceTest`**: Added rigorous unit tests applying mock values generated through `mockLlmResponse()` utility and intercepting `chatCompletions(any())`. During implementation, we had to adjust the code block of `AiService.java` error catch to actually return fallback responses smoothly as the fallback behavior was specified but initially unsupported directly without throwing exception. Furthermore, aligned JSON payload `duplicate` field representation with Jackson's expected schema for deserializing `@Data` boolean parameters (it maps `isDuplicate()` logic natively down to a json field called `duplicate`).
+## Initial Setup
+- Created branch `test/wo-test-03-retry`.
+- Created `.jules/SPEC.md` and `.jules/PLAN.md`.
