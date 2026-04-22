@@ -1,85 +1,47 @@
-# Specification: Lightweight Issue Tracker
+# SPEC
 
-## Data Model
+## Requirements
+Implement pure unit tests for `saas-os-core` as described in WO-TEST-01.
 
-### Projects
-- `id` (UUID, PK)
-- `tenant_id` (UUID, indexed)
-- `name` (String)
-- `slug` (String, unique within tenant)
-- `description` (Text)
-- `status` (String: ACTIVE, ARCHIVED)
-- `created_by` (UUID)
-- `created_at` (Timestamp)
-- `updated_at` (Timestamp)
+These tests need to be fully isolated. We should not start the Spring context (`@SpringBootTest` is not allowed) and should only use Mockito + JUnit 5 (`spring-boot-starter-test` dependency provides these).
 
-### Labels
-- `id` (UUID, PK)
-- `tenant_id` (UUID, indexed)
-- `name` (String)
-- `color` (String)
+## Targeted Files
+1. `saas-os-core/src/test/java/com/changelog/ai/AiServiceTest.java`
+2. `saas-os-core/src/test/java/com/changelog/config/JwtTenantResolverTest.java`
+3. `saas-os-core/src/test/java/com/changelog/config/GlobalExceptionHandlerTest.java`
+4. `saas-os-core/src/test/java/com/changelog/config/LocalTenantResolverTest.java`
 
-### Issues
-- `id` (UUID, PK)
-- `tenant_id` (UUID, indexed)
-- `project_id` (UUID, FK)
-- `number` (Long, auto-incrementing per project)
-- `title` (String)
-- `description` (Text)
-- `content_tsv` (TSVector for search)
-- `status` (String: OPEN, IN_PROGRESS, RESOLVED, CLOSED)
-- `priority` (String: LOW, MEDIUM, HIGH, URGENT)
-- `reporter_id` (UUID)
-- `assignee_id` (UUID)
-- `due_date` (Date)
-- `embedding` (Vector 1536)
-- `created_at` (Timestamp)
-- `updated_at` (Timestamp)
+## Necessary Dependencies
+Ensure `spring-boot-starter-test` (scope test) is in `saas-os-core/pom.xml`. The prompt mentions `spring-boot-starter-test` transitively includes JUnit 5 (Jupiter), Mockito 5, AssertJ, and Hamcrest.
 
-### Issue Label Assignments
-- `issue_id` (UUID, FK)
-- `label_id` (UUID, FK)
+## Test Specifics
 
-### Issue Comments
-- `id` (UUID, PK)
-- `issue_id` (UUID, FK)
-- `author_id` (UUID)
-- `content` (Text)
-- `created_at` (Timestamp)
+### 1. `AiServiceTest`
+- We will mock `LiteLlmApi` using Mockito.
+- Inject `model` value using `ReflectionTestUtils.setField`.
+- Add test scenarios for `rewrite`, `generateTitles`, `checkDuplicateIssue`, `suggestIssuePriority`, and `callLlmRaw`, testing both successful execution and exception flows.
+- Need to understand `AiDuplicateCheckResponse` and `AiPriorityResponse` fields from `dto` folder, as well as `LiteLlmApi`, `ChatCompletionRequest` and `ChatCompletionResponse` structures.
+- From inspecting `AiService.java`:
+  - `checkDuplicateIssue` parses to `AiDuplicateCheckResponse`
+  - `suggestIssuePriority` parses to `AiPriorityResponse`
 
-### Issue Attachments
-- `id` (UUID, PK)
-- `issue_id` (UUID, FK)
-- `file_key` (String)
-- `file_name` (String)
-- `file_size_bytes` (Long)
-- `created_at` (Timestamp)
+### 2. `JwtTenantResolverTest`
+- Test `getTenantId` for a valid UUID claim.
+- Test missing claim.
+- Test invalid UUID claim.
+- We will use `Jwt.withTokenValue("token").header("alg", "RS256").claim("tenant_id", "some-uuid").subject("user").build()`.
 
-### Issue Links
-- `id` (UUID, PK)
-- `source_issue_id` (UUID, FK)
-- `target_issue_id` (UUID, FK)
-- `link_type` (String: BLOCKS, RELATES_TO, DUPLICATE_OF)
+### 3. `GlobalExceptionHandlerTest`
+- Test `handleEntityNotFound`, `handleIllegalArgument`, `handleForbidden`, `handleIllegalState`, and generic `Exception` handlers in `GlobalExceptionHandler.java`.
 
-### Issue Events
-- `id` (UUID, PK)
-- `issue_id` (UUID, FK)
-- `actor_id` (UUID)
-- `event_type` (String)
-- `old_value` (String)
-- `new_value` (String)
-- `created_at` (Timestamp)
+### 4. `LocalTenantResolverTest`
+- Instantiate `LocalTenantResolver` directly. Test `getTenantId(anyJwt)` returns a fixed UUID.
 
-## API Endpoints
-
-- `GET/POST /api/projects`
-- `GET/PUT/DELETE /api/projects/{projectId}`
-- `GET/POST /api/projects/{projectId}/issues`
-- `GET/PUT/DELETE /api/issues/{issueId}`
-- `GET /api/issues/{issueId}/activity` (mapped to issue_events)
-- `GET/POST /api/issues/{issueId}/comments`
-- `PUT/DELETE /api/comments/{commentId}`
-- `GET/POST /api/labels`
-- `GET /api/issues/search?q=query`
-- `POST /api/issues/ai/check-duplicate`
-- `POST /api/issues/{issueId}/ai/suggest-priority`
+## Implementation Plan
+1. Add `spring-boot-starter-test` dependency in `saas-os-core/pom.xml`.
+2. Inspect `com.changelog.dto.*` and `com.changelog.ai.*` (like `LiteLlmApi`, `ChatCompletionResponse`) and `com.changelog.config.*` (`JwtTenantResolver`, `GlobalExceptionHandler`, `LocalTenantResolver`) to see exact method names and fields.
+3. Write `AiServiceTest`.
+4. Write `JwtTenantResolverTest`.
+5. Write `GlobalExceptionHandlerTest`.
+6. Write `LocalTenantResolverTest`.
+7. Run `mvn test -pl saas-os-core`.

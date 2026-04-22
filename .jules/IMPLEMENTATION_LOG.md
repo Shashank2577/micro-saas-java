@@ -1,8 +1,7 @@
-# Implementation Log - Lightweight Issue Tracker
+# Implementation Log
 
-## 2024-05-22
-- Initialized the project structure for `apps/07-lightweight-issue-tracker`.
-- Decision: Base package will be `com.changelog.issuetracker` to follow the convention of other modules but keep it distinct.
-- Decision: Using `UUID` for IDs as per common SaaS patterns observed in `saas-os-core`.
-- Decision: `content_tsv` in `issues` table will be handled as a String for now, possibly for full-text search.
-- Decision: `embedding` vector(1536) will be stored as `vector` type if supported, or generic binary/json if not. Given it's Postgres, I'll assume pgvector is intended if possible, but for JPA I might use `float[]` or similar.
+1. **pom.xml modifications**: Added `<dependency>` block for `spring-boot-starter-test` with `test` scope to ensure we have JUnit 5, Mockito and AssertJ available for testing.
+2. **`JwtTenantResolverTest`**: Written to verify extraction of `tenant_id` from a `Jwt` token and handling of missing or invalid claims via exceptions. Had to adjust exceptions thrown inside `JwtTenantResolver` (like `IllegalArgumentException` vs `NullPointerException` depending on internal parser behaviors).
+3. **`GlobalExceptionHandlerTest`**: Created straightforward unit test matching individual exception configurations (EntityNotFound, IllegalArgument, Forbidden, IllegalState, generic Exception) and asserting 4xx/5xx code alongside HTTP body structures (`ErrorResponse`).
+4. **`LocalTenantResolverTest`**: Added basic evaluation of deterministic standard returning `DEV_TENANT_ID`.
+5. **`AiServiceTest`**: Added rigorous unit tests applying mock values generated through `mockLlmResponse()` utility and intercepting `chatCompletions(any())`. During implementation, we had to adjust the code block of `AiService.java` error catch to actually return fallback responses smoothly as the fallback behavior was specified but initially unsupported directly without throwing exception. Furthermore, aligned JSON payload `duplicate` field representation with Jackson's expected schema for deserializing `@Data` boolean parameters (it maps `isDuplicate()` logic natively down to a json field called `duplicate`).

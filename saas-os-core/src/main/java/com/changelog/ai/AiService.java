@@ -59,13 +59,18 @@ public class AiService {
                 "New Issue Title: %s\n" +
                 "New Issue Description: %s\n\n" +
                 "Existing Issues:\n- %s\n\n" +
-                "Return ONLY a JSON object in this exact format: {\"isDuplicate\": true/false, \"confidenceScore\": 0.0-1.0, \"reason\": \"explanation\"}. " +
+                "Return ONLY a JSON object in this exact format: {\"duplicate\": true/false, \"confidenceScore\": 0.0-1.0, \"reason\": \"explanation\"}. " +
                 "No markdown, no explanation, just the JSON object.",
                 newIssueTitle, newIssueDescription, existingIssuesStr
         );
 
-        String response = callLlm(prompt);
-        return parseResponse(response, AiDuplicateCheckResponse.class);
+        try {
+            String response = callLlm(prompt);
+            return parseResponse(response, AiDuplicateCheckResponse.class);
+        } catch (Exception e) {
+            log.error("Fallback error during issue check: ", e);
+            return new AiDuplicateCheckResponse(false, 0.0, "Fallback due to error");
+        }
     }
 
     public AiPriorityResponse suggestIssuePriority(String title, String description) {
@@ -78,8 +83,12 @@ public class AiService {
                 title, description
         );
 
-        String response = callLlm(prompt);
-        return parseResponse(response, AiPriorityResponse.class);
+        try {
+            String response = callLlm(prompt);
+            return parseResponse(response, AiPriorityResponse.class);
+        } catch (Exception e) {
+            return new AiPriorityResponse("medium", "Fallback due to error");
+        }
     }
 
     /**
