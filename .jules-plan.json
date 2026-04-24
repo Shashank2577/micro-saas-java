@@ -1,32 +1,103 @@
 {
   "repo": "Shashank2577/micro-saas-java",
-  "branch": "main",
-  "spec_file": "docs/plans/2026-04-17-saas-platform-verification-and-next-phases.md",
-  "created_at": "2026-04-19T11:45:00Z",
-  "total_tasks": 3,
+  "branch": "wave1/app-02-feedback-roadmap-v2",
+  "base_branch": "main",
+  "spec_file": "docs/apps/02-team-feedback-roadmap.md",
+  "created_at": "2026-04-18T00:00:00Z",
+  "total_tasks": 10,
   "batches": [
     {
       "batch": 1,
-      "name": "Wave 1: Foundation & Infrastructure",
-      "rationale": "These tasks establish the shared infrastructure for multi-app support and can run in parallel as they touch different parts of the system (DB migrations, Repositories/Services, and Security Config).",
+      "name": "Project Setup & Domain Layer",
+      "rationale": "Initial module structure and JPA entities required for all other tasks",
       "tasks": [
         {
           "id": "t1",
-          "title": "Shared Identity Registry Refactor",
-          "prompt": "Refactor the 'cc' schema (tenants and users) to act as a master registry for multiple applications. Ensure cc.tenants has the necessary fields for plan tracking and app identification. Update Flyway migrations in 'src/main/resources/db/migration' if needed to ensure these tables are robust for 5+ apps sharing the same identity layer.",
+          "title": "Module Initialization & POM",
+          "prompt": "Create the directory 'apps/02-feedback-roadmap'. Add a pom.xml that uses 'saas-os-parent' as parent and depends on 'saas-os-core'. Update the root pom.xml to include this new module. Use Java 21.",
           "depends_on": []
         },
         {
           "id": "t2",
-          "title": "Global Slug Resolver Implementation",
-          "prompt": "Update ProjectRepository and ProjectService to enforce unique global project slugs. Change 'findBySlug' to ensure it returns a unique project across all tenants, and update the database constraints in the migrations to 'UNIQUE(slug)' instead of 'UNIQUE(tenant_id, slug)'. Ensure the controller '/changelog/{slug}' handles this correctly.",
-          "depends_on": []
-        },
+          "title": "JPA Entities & Flyway Migration",
+          "prompt": "Implement JPA entities for Board, Post, Vote, Comment, and StatusHistory. All entities must be linked to the 'Tenant' model from 'saas-os-core'. Create a Flyway migration file V1__feedback_schema.sql in 'apps/02-feedback-roadmap/src/main/resources/db/migration'.",
+          "depends_on": ["t1"]
+        }
+      ]
+    },
+    {
+      "batch": 2,
+      "name": "Repository & Service Layer",
+      "rationale": "Data access and core business logic for the application",
+      "tasks": [
         {
           "id": "t3",
-          "title": "Dynamic Security & Multi-App CORS",
-          "prompt": "Modify SecurityConfig.java and application.yml to support dynamic Keycloak issuers. Instead of a hardcoded realm, use a template or environment variable. Update CorsConfig.java to dynamically allow origins based on tenant metadata or a shared allowed-origins list in the database, supporting multiple frontend origins for different apps.",
-          "depends_on": []
+          "title": "Repositories & Base Services",
+          "prompt": "Implement Spring Data JPA repositories for all entities created in t2. Create BoardService and PostService with CRUD operations. Ensure tenant isolation using the mechanisms in 'saas-os-core'.",
+          "depends_on": ["t2"]
+        },
+        {
+          "id": "t4",
+          "title": "Status Update & Vote Logic",
+          "prompt": "Implement business logic for updating post status (including audit history) and handling votes (one per email per post). Reuse existing Audit or status change mechanisms from 'saas-os-core' if applicable.",
+          "depends_on": ["t3"]
+        }
+      ]
+    },
+    {
+      "batch": 3,
+      "name": "Internal REST API",
+      "rationale": "REST controllers for administrative actions",
+      "tasks": [
+        {
+          "id": "t5",
+          "title": "Board & Post Controllers (Admin)",
+          "prompt": "Implement REST controllers for Board and Post management. Use RBAC and Auth from 'saas-os-core' to restrict access to authenticated tenant users. Include DTO mapping.",
+          "depends_on": ["t4"]
+        },
+        {
+          "id": "t6",
+          "title": "Roadmap Management API",
+          "prompt": "Implement API for curators to manage the roadmap (ordering posts, setting ETA labels, toggling public visibility).",
+          "depends_on": ["t5"]
+        }
+      ]
+    },
+    {
+      "batch": 4,
+      "name": "Public API & Notifications",
+      "rationale": "External facing endpoints and communication logic",
+      "tasks": [
+        {
+          "id": "t7",
+          "title": "Public Feedback Endpoints",
+          "prompt": "Implement public endpoints for board list, post list, post submission, and voting. These should be accessible by tenant slug. Ensure proper validation.",
+          "depends_on": ["t6"]
+        },
+        {
+          "id": "t8",
+          "title": "Voter Notifications (Fan-out)",
+          "prompt": "Implement background job or async event listener that emails all voters when a post status changes to 'Completed'. Use the notification service from 'saas-os-core'.",
+          "depends_on": ["t7"]
+        }
+      ]
+    },
+    {
+      "batch": 5,
+      "name": "AI & Advanced Features",
+      "rationale": "Integration with AI services for enhanced functionality",
+      "tasks": [
+        {
+          "id": "t9",
+          "title": "AI Smart Deduplication",
+          "prompt": "Integrate with 'AiService' from 'saas-os-core' to implement semantic deduplication during post submission. Use similarity search on existing post titles/descriptions.",
+          "depends_on": ["t8"]
+        },
+        {
+          "id": "t10",
+          "title": "Weekly PM Digest Job",
+          "prompt": "Implement a scheduled task that aggregates top-voted posts and trends for each tenant and sends a weekly digest email to the PM.",
+          "depends_on": ["t8"]
         }
       ]
     }
