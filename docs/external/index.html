@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro-SaaS Platform Demo</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --accent: #8b5cf6;
+            --card-bg: #1e293b;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--bg-color), #1e1b4b);
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: -webkit-linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .os-core {
+            background-color: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .os-core:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .os-modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .module {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .module:hover {
+            background-color: rgba(59, 130, 246, 0.2);
+            border-color: var(--primary);
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+            position: relative;
+        }
+
+        .app-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .app-card.active {
+            border-color: var(--secondary);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+            transform: scale(1.05);
+        }
+
+        .app-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .app-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Animated Connections */
+        .connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            height: 2px;
+            width: 0;
+            opacity: 0.5;
+            transition: width 1s ease-out, opacity 0.5s ease;
+        }
+
+        .line.active {
+            width: 100%;
+            opacity: 1;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; box-shadow: 0 0 10px var(--primary); }
+            100% { opacity: 0.5; }
+        }
+
+        .info-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            display: none;
+        }
+
+        .info-panel.visible {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+
+        .info-panel h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        ul li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Micro-SaaS Platform</h1>
+        <p class="subtitle">Interactive Architecture Explorer: 10 Apps, 1 Core OS</p>
+    </header>
+
+    <div class="container">
+        <div class="architecture">
+            
+            <div class="apps-grid" id="appsGrid">
+                <div class="app-card" onclick="selectApp('app09', this)">
+                    <div class="app-icon">📢</div>
+                    <h3>App 09</h3>
+                    <p>Changelog</p>
+                </div>
+                <div class="app-card" onclick="selectApp('app02', this)">
+                    <div class="app-icon">🗺️</div>
+                    <h3>App 02</h3>
+                    <p>Roadmap</p>
+                </div>
+                <div class="app-card" onclick="selectApp('app07', this)">
+                    <div class="app-icon">🐛</div>
+                    <h3>App 07</h3>
+                    <p>Issue Tracker</p>
+                </div>
+                <div class="app-card" onclick="selectApp('app01', this)">
+                    <div class="app-icon">🤝</div>
+                    <h3>App 01</h3>
+                    <p>Client Portal</p>
+                </div>
+                <div class="app-card" onclick="selectApp('app03', this)">
+                    <div class="app-icon">🧠</div>
+                    <h3>App 03</h3>
+                    <p>Knowledge Base</p>
+                </div>
+            </div>
+
+            <div style="height: 50px; position: relative; width: 2px; background: var(--border); margin: 0 auto;">
+                <div class="line" id="connectionLine" style="width: 2px; height: 100%; top:0; left: 0; background: var(--primary); transition: opacity 0.3s; opacity: 0;"></div>
+            </div>
+
+            <div class="os-core" id="osCore">
+                <h2>SaaS Operating System (Shared Core)</h2>
+                <p style="color: #94a3b8; margin-top: 0.5rem;">One underlying infrastructure powering every application</p>
+                
+                <div class="os-modules">
+                    <div class="module" onmouseover="showModuleInfo('auth')">Auth (Keycloak)</div>
+                    <div class="module" onmouseover="showModuleInfo('billing')">Billing (Stripe)</div>
+                    <div class="module" onmouseover="showModuleInfo('db')">Database (Postgres)</div>
+                    <div class="module" onmouseover="showModuleInfo('storage')">Storage (MinIO)</div>
+                    <div class="module" onmouseover="showModuleInfo('retention')">Retention Emails</div>
+                </div>
+            </div>
+
+            <div class="info-panel" id="infoPanel">
+                <h3 id="infoTitle">Select an app or hover over a module</h3>
+                <p id="infoDesc">Click any app above to see how it utilizes the shared SaaS OS.</p>
+                <ul id="infoList"></ul>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const appData = {
+            'app09': {
+                title: 'App 09: Changelog Platform (Anchor App)',
+                desc: 'The foundational app where the SaaS OS was originally built.',
+                features: ['Public changelog widget', 'Draft/Publish workflows', 'Subscriber management', 'Full-text search']
+            },
+            'app02': {
+                title: 'App 02: Team Feedback & Roadmap',
+                desc: 'Plugs directly into the OS to handle user suggestions.',
+                features: ['Upvote/downvote system', 'Kanban roadmap view', 'Public feedback boards']
+            },
+            'app07': {
+                title: 'App 07: Lightweight Issue Tracker',
+                desc: 'Uses the OS core for tenant isolation and team billing.',
+                features: ['Bug reporting forms', 'Internal triage queues', 'Status notifications']
+            },
+            'app01': {
+                title: 'App 01: Client Portal Builder',
+                desc: 'White-label portals utilizing the OS branding engine.',
+                features: ['Custom domains', 'Deliverable approvals', 'Client communications']
+            },
+            'app03': {
+                title: 'App 03: AI Knowledge Base',
+                desc: 'Leverages the OS for document storage and access control.',
+                features: ['Semantic search', 'Natural language Q&A', 'Access control lists']
+            }
+        };
+
+        const moduleData = {
+            'auth': 'Keycloak OAuth2 Server handling JWT, TenantResolver, and cross-app SSO.',
+            'billing': 'Stripe integration for checkout sessions, webhooks, and subscription tiering.',
+            'db': 'PostgreSQL 16 with Flyway. Tenant-scoped tables and JSONB metadata.',
+            'storage': 'S3-compatible MinIO for avatar uploads, attachments, and file hosting.',
+            'retention': 'Spring Mail engine for drip campaigns, notifications, and lifecycle triggers.'
+        };
+
+        function selectApp(appId, element) {
+            // UI Reset
+            document.querySelectorAll('.app-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Connection animation
+            const line = document.getElementById('connectionLine');
+            line.style.opacity = '1';
+            line.classList.remove('active');
+            void line.offsetWidth; // trigger reflow
+            line.classList.add('active');
+
+            // Pulse OS Core
+            const core = document.getElementById('osCore');
+            core.style.transform = 'scale(1.02)';
+            core.style.borderColor = 'var(--secondary)';
+            setTimeout(() => {
+                core.style.transform = 'scale(1)';
+                core.style.borderColor = 'var(--primary)';
+            }, 300);
+
+            // Update Info Panel
+            const panel = document.getElementById('infoPanel');
+            const title = document.getElementById('infoTitle');
+            const desc = document.getElementById('infoDesc');
+            const list = document.getElementById('infoList');
+
+            title.innerText = appData[appId].title;
+            desc.innerText = appData[appId].desc;
+            
+            list.innerHTML = '';
+            appData[appId].features.forEach(feat => {
+                const li = document.createElement('li');
+                li.innerText = feat;
+                list.appendChild(li);
+            });
+
+            panel.classList.add('visible');
+        }
+
+        function showModuleInfo(moduleId) {
+            const panel = document.getElementById('infoPanel');
+            const title = document.getElementById('infoTitle');
+            const desc = document.getElementById('infoDesc');
+            const list = document.getElementById('infoList');
+
+            title.innerText = 'SaaS OS Module: ' + moduleId.toUpperCase();
+            desc.innerText = moduleData[moduleId];
+            list.innerHTML = '';
+
+            panel.classList.add('visible');
+        }
+    </script>
+</body>
+</html>
