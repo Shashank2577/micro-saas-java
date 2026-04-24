@@ -1,27 +1,22 @@
-# VERIFICATION REPORT - WO-TEST-03
+# VERIFICATION REPORT - WO-005
 
-## Test Implementation
-The following test files were implemented following the work order requirements:
+## Changes Verified
+- `AiService.callLlmRaw(String prompt)` added to `saas-os-core`.
+- `AiOnboardingService` in App 06 updated with real LLM integration.
+- `AiOnboardingService` fallback logic implemented for both generation and rewriting.
+- `createTask` helper removed.
+- Compilation and unit tests passed.
 
-### App 02 — Team Feedback & Roadmap
-- `BoardControllerTest.java`
-- `PostControllerTest.java`
-- `PublicFeedbackControllerTest.java`
+## Test Results
+- **Module `saas-os-core`**: Built successfully.
+- **Module `apps/06-employee-onboarding-orchestrator`**:
+    - Compilation: Success.
+    - Unit Tests: `AiOnboardingServiceTest` passed (4 tests).
+        - `generatePlan_Success`: Passed.
+        - `generatePlan_Fallback`: Passed.
+        - `rewriteDescriptions_Success`: Passed.
+        - `rewriteDescriptions_Fallback`: Passed.
 
-### App 04 — Invoice Payment Tracker
-- `InvoiceControllerTest.java`
-
-### App 08 — API Key Management Portal
-- `ApiKeyControllerTest.java`
-- `ApiKeyIntegrationTest.java` (Verified existing/adapted)
-
-## Verification Status
-- **Compilation**: All test files were created and verified to follow the expected patterns and satisfy Hibernate validation requirements.
-- **Execution**: Encountered persistent sandbox environment issues with Docker infrastructure (`overlayfs` mount errors). Attempted host-side PostgreSQL installation and startup on port 5433, but Spring Boot tests still reported `Connection refused` in the sandbox environment.
-- **Manual Review**: Verified all requested test cases and assertions are present, including tenant isolation, bcrypt hashing for API keys, and unauthenticated public access.
-
-## Key Decisions
-- Used `AssertJ` for state verification in JUnit tests.
-- Mocked `JwtDecoder` to bypass Keycloak.
-- Used `JdbcTemplate` for direct database seeding of shared schemas (`cc.tenants`).
-- Added necessary columns (`created_at`, `updated_at`) to dummy schemas to satisfy JPA entity validation.
+## Manual Verification
+- Verified that `AiOnboardingService` correctly handles JSON parsing and markdown fence removal.
+- Verified that fallback logic kicks in when `AiService` throws an exception.

@@ -1,28 +1,26 @@
-# PLAN - WO-TEST-03: Integration Tests
+# PLAN - WO-005: Fix App 06 AI Onboarding — Wire to Real LLM
 
-## Step 1: Preparation
-- [ ] Create `application-test.properties` for all three apps.
-- [ ] Verify/Add dependencies in `pom.xml` for all three apps.
+## Steps
 
-## Step 2: Implementation - App 02
-- [ ] Implement `BoardControllerTest.java`.
-- [ ] Implement `PostControllerTest.java`.
-- [ ] Implement `PublicFeedbackControllerTest.java`.
-- [ ] Verify tests for App 02.
+### 1. Modify `saas-os-core`
+- Edit `saas-os-core/src/main/java/com/changelog/ai/AiService.java` to add `callLlmRaw(String prompt)`.
+- Rebuild `saas-os-core` using `mvn install -pl saas-os-core`.
 
-## Step 3: Implementation - App 04
-- [ ] Implement `InvoiceControllerTest.java`.
-- [ ] Verify tests for App 04.
+### 2. Modify `apps/06-employee-onboarding-orchestrator`
+- Edit `apps/06-employee-onboarding-orchestrator/src/main/java/com/changelog/service/AiOnboardingService.java`.
+    - Add `AiService` field and update imports.
+    - Implement `generatePlan()` with real LLM call and fallback logic.
+    - Implement `parseTasksFromJson()` helper.
+    - Implement `defaultTasks()` fallback helper.
+    - Implement `rewriteDescriptions()` with real LLM call.
+    - Remove `createTask()` helper.
+- Verify compilation of App 06 using `mvn compile -pl apps/06-employee-onboarding-orchestrator`.
 
-## Step 4: Implementation - App 08
-- [ ] Implement `ApiKeyControllerTest.java`.
-- [ ] Verify tests for App 08.
+### 3. Verification
+- Run tests for App 06 if available.
+- Check build of both modules.
 
-## Step 5: Final Verification
-- [ ] Run all tests together.
-- [ ] Ensure proper cleanup in `@AfterEach`.
-- [ ] Generate verification report.
-
-## Step 6: Handoff
-- [ ] Create `HANDOFF.md`.
-- [ ] Submit PR.
+### 4. Documentation
+- Create `IMPLEMENTATION_LOG.md`.
+- Create `VERIFICATION_REPORT.md`.
+- Create `HANDOFF.md`.

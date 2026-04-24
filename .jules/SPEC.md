@@ -1,37 +1,28 @@
-# SPEC - WO-TEST-03: Integration Tests
+# SPEC - WO-005: Fix App 06 AI Onboarding — Wire to Real LLM
 
-## Goal
-Implement integration tests for three applications:
-- App 02: Team Feedback & Roadmap
-- App 04: Invoice Payment Tracker
-- App 08: API Key Management Portal
+## Problem Definition
+The `AiOnboardingService` in the employee onboarding application (App 06) uses hardcoded stubs for generating onboarding plans and rewriting task descriptions. These need to be integrated with the real LLM gateway via `AiService` from the `saas-os-core` module.
 
-The tests must follow a specific pattern using `@SpringBootTest`, `@AutoConfigureMockMvc`, and manual DB seeding via `JdbcTemplate` on a real PostgreSQL instance (localhost:5433).
+## Proposed Changes
 
-## Requirements
+### saas-os-core
+- **AiService.java**: Add a public method `callLlmRaw(String prompt)` that wraps the existing private `callLlm(String prompt)` method. This allows other modules to use the LLM for custom prompts and raw string responses.
 
-### Global
-- Use `@ActiveProfiles("test")`.
-- Disable Flyway in tests (`spring.flyway.enabled=false`).
-- Use `@MockBean JwtDecoder jwtDecoder` to bypass Keycloak.
-- Use `SecurityMockMvcRequestPostProcessors.jwt()` for authenticated requests.
-- Seed `cc.tenants` before any app-specific data.
-- Cleanup seeded data in `@AfterEach`.
-- Use real PostgreSQL at `localhost:5433`.
+### apps/06-employee-onboarding-orchestrator
+- **AiOnboardingService.java**:
+    - Inject `AiService`.
+    - Update `generatePlan()` to use `AiService.callLlmRaw()` with a specific prompt to generate 8-12 tasks in JSON format.
+    - Add `parseTasksFromJson()` to handle LLM response parsing, including markdown fence stripping and JSON mapping to `TemplateTask`.
+    - Add `defaultTasks()` as a fallback when AI generation fails.
+    - Update `rewriteDescriptions()` to use `AiService.callLlmRaw()` for each task description.
+    - Ensure graceful degradation: use fallback or keep original data if LLM calls fail.
+    - Remove the unused `createTask()` helper.
+    - Add required imports (`ObjectMapper`, `JsonNode`, `ArrayList`, `List`, `AiService`).
 
-### App 02 — Team Feedback & Roadmap
-- `BoardControllerTest.java`: List, Create, Get, Tenant Isolation, Validation.
-- `PostControllerTest.java`: List, Create, Vote, Update Status.
-- `PublicFeedbackControllerTest.java`: Unauthenticated access to public boards and post submission.
-
-### App 04 — Invoice Payment Tracker
-- `InvoiceControllerTest.java`: List, Create, Send, Mark Paid, Public Access via Token, Tenant Isolation, Validation.
-
-### App 08 — API Key Management Portal
-- `ApiKeyControllerTest.java`: List, Create (verify bcrypt hashing), Revoke, Tenant Isolation, Validation (X-API-KEY), Rotate.
-
-## Success Criteria
-- All tests pass.
-- No Testcontainers used.
-- Correct use of JWT claims for tenant isolation.
-- Databases tables are cleaned up after each test.
+## Acceptance Criteria
+- `AiService.callLlmRaw` exists and is public.
+- `generatePlan` in App 06 returns AI-generated tasks.
+- `rewriteDescriptions` in App 06 updates descriptions using the LLM.
+- Graceful degradation works for both methods.
+- `createTask` is removed.
+- Successful build of both modules.
