@@ -1,26 +1,8 @@
-# PLAN - WO-005: Fix App 06 AI Onboarding — Wire to Real LLM
-
-## Steps
-
-### 1. Modify `saas-os-core`
-- Edit `saas-os-core/src/main/java/com/changelog/ai/AiService.java` to add `callLlmRaw(String prompt)`.
-- Rebuild `saas-os-core` using `mvn install -pl saas-os-core`.
-
-### 2. Modify `apps/06-employee-onboarding-orchestrator`
-- Edit `apps/06-employee-onboarding-orchestrator/src/main/java/com/changelog/service/AiOnboardingService.java`.
-    - Add `AiService` field and update imports.
-    - Implement `generatePlan()` with real LLM call and fallback logic.
-    - Implement `parseTasksFromJson()` helper.
-    - Implement `defaultTasks()` fallback helper.
-    - Implement `rewriteDescriptions()` with real LLM call.
-    - Remove `createTask()` helper.
-- Verify compilation of App 06 using `mvn compile -pl apps/06-employee-onboarding-orchestrator`.
-
-### 3. Verification
-- Run tests for App 06 if available.
-- Check build of both modules.
-
-### 4. Documentation
-- Create `IMPLEMENTATION_LOG.md`.
-- Create `VERIFICATION_REPORT.md`.
-- Create `HANDOFF.md`.
+1. **Explore APIs and Structs**: Find out details of `ChatCompletionResponse`, `ChatCompletionRequest`, `AiDuplicateCheckResponse`, `AiPriorityResponse`, `AiRewriteResponse`, `AiTitleResponse`, `LiteLlmApi`, `JwtTenantResolver`, `GlobalExceptionHandler`, and `LocalTenantResolver`.
+2. **Update pom.xml**: Add `spring-boot-starter-test` to `saas-os-core/pom.xml`.
+3. **Write `AiServiceTest.java`**: Using Mockito and JUnit 5 to cover `AiService`. Handle the JSON parsing paths and error scenarios as requested.
+4. **Write `JwtTenantResolverTest.java`**: Testing `tenant_id` extraction from `Jwt` tokens.
+5. **Write `GlobalExceptionHandlerTest.java`**: Test `GlobalExceptionHandler` methods directly with created exceptions.
+6. **Write `LocalTenantResolverTest.java`**: Test local tenant resolution deterministic UUID generation.
+7. **Verify Tests**: Run `mvn test -pl saas-os-core` and make sure it succeeds.
+8. **Pre-commit and Handoff**: Run pre-commit instructions and then write `IMPLEMENTATION_LOG.md`, `VERIFICATION_REPORT.md`, `HANDOFF.md` before submitting the PR.

@@ -1,28 +1,47 @@
-# SPEC - WO-005: Fix App 06 AI Onboarding — Wire to Real LLM
+# SPEC
 
-## Problem Definition
-The `AiOnboardingService` in the employee onboarding application (App 06) uses hardcoded stubs for generating onboarding plans and rewriting task descriptions. These need to be integrated with the real LLM gateway via `AiService` from the `saas-os-core` module.
+## Requirements
+Implement pure unit tests for `saas-os-core` as described in WO-TEST-01.
 
-## Proposed Changes
+These tests need to be fully isolated. We should not start the Spring context (`@SpringBootTest` is not allowed) and should only use Mockito + JUnit 5 (`spring-boot-starter-test` dependency provides these).
 
-### saas-os-core
-- **AiService.java**: Add a public method `callLlmRaw(String prompt)` that wraps the existing private `callLlm(String prompt)` method. This allows other modules to use the LLM for custom prompts and raw string responses.
+## Targeted Files
+1. `saas-os-core/src/test/java/com/changelog/ai/AiServiceTest.java`
+2. `saas-os-core/src/test/java/com/changelog/config/JwtTenantResolverTest.java`
+3. `saas-os-core/src/test/java/com/changelog/config/GlobalExceptionHandlerTest.java`
+4. `saas-os-core/src/test/java/com/changelog/config/LocalTenantResolverTest.java`
 
-### apps/06-employee-onboarding-orchestrator
-- **AiOnboardingService.java**:
-    - Inject `AiService`.
-    - Update `generatePlan()` to use `AiService.callLlmRaw()` with a specific prompt to generate 8-12 tasks in JSON format.
-    - Add `parseTasksFromJson()` to handle LLM response parsing, including markdown fence stripping and JSON mapping to `TemplateTask`.
-    - Add `defaultTasks()` as a fallback when AI generation fails.
-    - Update `rewriteDescriptions()` to use `AiService.callLlmRaw()` for each task description.
-    - Ensure graceful degradation: use fallback or keep original data if LLM calls fail.
-    - Remove the unused `createTask()` helper.
-    - Add required imports (`ObjectMapper`, `JsonNode`, `ArrayList`, `List`, `AiService`).
+## Necessary Dependencies
+Ensure `spring-boot-starter-test` (scope test) is in `saas-os-core/pom.xml`. The prompt mentions `spring-boot-starter-test` transitively includes JUnit 5 (Jupiter), Mockito 5, AssertJ, and Hamcrest.
 
-## Acceptance Criteria
-- `AiService.callLlmRaw` exists and is public.
-- `generatePlan` in App 06 returns AI-generated tasks.
-- `rewriteDescriptions` in App 06 updates descriptions using the LLM.
-- Graceful degradation works for both methods.
-- `createTask` is removed.
-- Successful build of both modules.
+## Test Specifics
+
+### 1. `AiServiceTest`
+- We will mock `LiteLlmApi` using Mockito.
+- Inject `model` value using `ReflectionTestUtils.setField`.
+- Add test scenarios for `rewrite`, `generateTitles`, `checkDuplicateIssue`, `suggestIssuePriority`, and `callLlmRaw`, testing both successful execution and exception flows.
+- Need to understand `AiDuplicateCheckResponse` and `AiPriorityResponse` fields from `dto` folder, as well as `LiteLlmApi`, `ChatCompletionRequest` and `ChatCompletionResponse` structures.
+- From inspecting `AiService.java`:
+  - `checkDuplicateIssue` parses to `AiDuplicateCheckResponse`
+  - `suggestIssuePriority` parses to `AiPriorityResponse`
+
+### 2. `JwtTenantResolverTest`
+- Test `getTenantId` for a valid UUID claim.
+- Test missing claim.
+- Test invalid UUID claim.
+- We will use `Jwt.withTokenValue("token").header("alg", "RS256").claim("tenant_id", "some-uuid").subject("user").build()`.
+
+### 3. `GlobalExceptionHandlerTest`
+- Test `handleEntityNotFound`, `handleIllegalArgument`, `handleForbidden`, `handleIllegalState`, and generic `Exception` handlers in `GlobalExceptionHandler.java`.
+
+### 4. `LocalTenantResolverTest`
+- Instantiate `LocalTenantResolver` directly. Test `getTenantId(anyJwt)` returns a fixed UUID.
+
+## Implementation Plan
+1. Add `spring-boot-starter-test` dependency in `saas-os-core/pom.xml`.
+2. Inspect `com.changelog.dto.*` and `com.changelog.ai.*` (like `LiteLlmApi`, `ChatCompletionResponse`) and `com.changelog.config.*` (`JwtTenantResolver`, `GlobalExceptionHandler`, `LocalTenantResolver`) to see exact method names and fields.
+3. Write `AiServiceTest`.
+4. Write `JwtTenantResolverTest`.
+5. Write `GlobalExceptionHandlerTest`.
+6. Write `LocalTenantResolverTest`.
+7. Run `mvn test -pl saas-os-core`.
